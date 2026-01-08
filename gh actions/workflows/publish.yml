@@ -1,0 +1,45 @@
+name: Build Logseq Plugin
+
+on:
+  push:
+    branches:
+      - "main"
+    paths-ignore:
+      - 'README.md'
+  workflow_dispatch:
+
+env:
+  PLUGIN_NAME: ${{ github.event.repository.name }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js for semantic-release
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Build
+        id: build
+        run: |
+          bun install
+          bun run build
+          mkdir ${{ env.PLUGIN_NAME }}
+          cp README.md package.json icon.svg ${{ env.PLUGIN_NAME }}
+          mv dist ${{ env.PLUGIN_NAME }}
+          zip -r ${{ env.PLUGIN_NAME }}.zip ${{ env.PLUGIN_NAME }}
+          ls
+          echo "tag_name=git tag --sort version:refname | tail -n 1" >> $GITHUB_OUTPUT
+      - name: Release
+        run: bunx semantic-release 
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
