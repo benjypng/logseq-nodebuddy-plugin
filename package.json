@@ -1,11 +1,11 @@
 {
-  "name": "<insert-plugin-name>",
+  "name": "logseq-nodebuddy-plugin",
   "author": "benjypng",
   "description": "",
   "license": "MIT",
   "logseq": {
-    "id": "<insert-plugin-name>",
-    "title": "<insert-plugin-name>",
+    "id": "logseq-nodebuddy-plugin",
+    "title": "logseq-nodebuddy-plugin",
     "icon": "./icon.svg",
     "main": "dist/index.html"
   },
@@ -25,16 +25,21 @@
         "@semantic-release/github",
         {
           "assets": [
-            "<insert-plugin-name>.zip"
+            "logseq-nodebuddy-plugin.zip"
           ]
         }
       ]
     ]
   },
   "dependencies": {
-    "@logseq/libs": "^0.2.8",
+    "@logseq/libs": "^0.2.10",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "@mantine/core": "^8.3.10",
+    "@mantine/form": "^8.3.10",
+    "@mantine/hooks": "^8.3.10",
+    "@tabler/icons-react": "^3.36.1",
+    "react-hook-form": "^7.69.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.8.0",
