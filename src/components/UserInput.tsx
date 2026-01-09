@@ -1,4 +1,4 @@
-import { ActionIcon, Flex, Textarea } from '@mantine/core'
+import { ActionIcon, Group, Textarea } from '@mantine/core'
 import { IconSend } from '@tabler/icons-react'
 import { useEffect } from 'react'
 import { Controller, SubmitHandler, useFormContext } from 'react-hook-form'
@@ -67,18 +67,21 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Flex gap="sm" align="flex-end" p="md" pt="xs">
+      <Group gap="sm" align="flex-end" mt="xs" p="sm">
         <Controller
           name="prompt"
           control={control}
-          render={({ field }) => (
+          rules={{ required: 'Ask me something!' }}
+          render={({ field, fieldState: { error } }) => (
             <Textarea
               {...field}
-              placeholder="Ask Gemini..."
+              placeholder="Ask NodeBuddy..."
               autosize
               minRows={1}
               maxRows={4}
               flex={1}
+              error={error?.message}
+              inputWrapperOrder={['label', 'description', 'error', 'input']}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault()
@@ -91,13 +94,13 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
         <ActionIcon
           type="submit"
           variant="filled"
-          size="lg"
-          mb={4}
+          size="input-sm"
           aria-label="Send message"
+          mb={0}
         >
-          <IconSend size={18} />
+          <IconSend />
         </ActionIcon>
-      </Flex>
+      </Group>
     </form>
   )
 }
