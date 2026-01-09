@@ -41,6 +41,15 @@ const main = async () => {
       display: none !important;
     }`)
 
+  logseq.setMainUIInlineStyle({
+    position: 'fixed',
+    zIndex: 11,
+    top: 0,
+    left: 0,
+    right: 'auto',
+    width: '20rem',
+  })
+
   const el = document.getElementById('app')
   if (!el) return
   const root = createRoot(el)
@@ -61,14 +70,6 @@ const main = async () => {
       },
     },
     async () => {
-      logseq.setMainUIInlineStyle({
-        position: 'fixed',
-        zIndex: 11,
-        top: 0,
-        left: 0,
-        right: 'auto',
-        width: '20rem',
-      })
       logseq.toggleMainUI()
     },
   )
