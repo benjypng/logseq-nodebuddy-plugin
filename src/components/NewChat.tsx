@@ -1,21 +1,26 @@
+import { PageEntity } from '@logseq/libs/dist/LSPlugin'
 import {
   Button,
   Center,
   Container,
+  Divider,
+  ScrollArea,
   Stack,
   Text,
   TextInput,
   Title,
 } from '@mantine/core'
-import { IconPlus } from '@tabler/icons-react'
+import { IconMessage, IconPlus } from '@tabler/icons-react'
+import { useEffect, useState } from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
 import { useAutoFocus, useLogseqPage } from '../hooks'
 import { NewPageFormValues } from '../types'
-import { writeHistoryToGraph } from '../utils'
+import { formatChatName, writeHistoryToGraph } from '../utils'
 
 export const NewChat = () => {
-  const { setPage } = useLogseqPage()
+  const { page, setPage } = useLogseqPage()
+  const [existingChats, setExistingChats] = useState<PageEntity[]>()
   const {
     control,
     handleSubmit,
@@ -26,6 +31,28 @@ export const NewChat = () => {
   })
 
   useAutoFocus(setFocus, 'title')
+
+  useEffect(() => {
+    const getExistingChats = async () => {
+      const tagName = logseq.settings?.nodeBuddyTag as string
+      if (!tagName) return
+      const tagPage = await logseq.Editor.getPage(tagName)
+      if (!tagPage) return
+      const tagIdent = tagPage.ident
+      if (!tagIdent) return
+
+      const blocksContainingTags = await logseq.Editor.getTagObjects(tagIdent)
+      if (!blocksContainingTags) return
+      const pagesContainingTags = blocksContainingTags.filter(
+        (block) => !block.page,
+      ) as unknown as PageEntity[]
+
+      if (pagesContainingTags && pagesContainingTags.length > 0) {
+        setExistingChats(pagesContainingTags)
+      }
+    }
+    getExistingChats()
+  }, [page])
 
   const onSubmit: SubmitHandler<NewPageFormValues> = async (data) => {
     if (!data.title) return
@@ -76,6 +103,40 @@ export const NewChat = () => {
               </Button>
             </Stack>
           </form>
+
+          {existingChats && existingChats.length > 0 && (
+            <>
+              <Divider
+                label="or resume session"
+                labelPosition="center"
+                w="100%"
+              />
+              <ScrollArea h={200} w="100%" type="auto" offsetScrollbars>
+                <Stack gap={4}>
+                  {existingChats.map((chat) => (
+                    <Button
+                      key={chat.id}
+                      variant="subtle"
+                      color="gray"
+                      fullWidth
+                      justify="flex-start"
+                      leftSection={<IconMessage size={14} />}
+                      onClick={() => setPage(chat)}
+                      styles={{
+                        label: {
+                          fontWeight: 400,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        },
+                      }}
+                    >
+                      {formatChatName(chat.name)}
+                    </Button>
+                  ))}
+                </Stack>
+              </ScrollArea>
+            </>
+          )}
         </Stack>
       </Container>
     </Center>
