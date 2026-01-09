@@ -6,6 +6,8 @@ import { getModelNameFromSettings } from '../utils'
 
 export const TitleHeader = () => {
   const { page } = useLogseqPage()
+  const nodeBuddyTag = logseq.settings?.nodeBuddyTag as string
+  const badgeLabel = page?.name.replace(`${nodeBuddyTag.toLowerCase()}:`, '')
 
   return (
     <Group align="center" justify="space-between" p="sm">
@@ -21,7 +23,7 @@ export const TitleHeader = () => {
           <IconFileText style={{ width: rem(12), height: rem(12) }} />
         }
       >
-        {page?.name.replace(`${logseq.settings?.nodeBuddyTag as string}:`, '')}
+        {badgeLabel}
       </Badge>
     </Group>
   )

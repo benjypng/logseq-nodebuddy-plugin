@@ -17,7 +17,7 @@ export const ChatBox = () => {
       id: 'init-1',
       role: 'buddy',
       content:
-        'I am ready. Select blocks in your graph to set context, or just ask me a question.',
+        'I am NodeBuddy, your Logseq AI assistant. Use #tag or @currentpage to add blocks to your context. Feel free to ask me for any help!',
     },
   ])
 
