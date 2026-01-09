@@ -5,8 +5,7 @@ import { Controller, SubmitHandler, useFormContext } from 'react-hook-form'
 import { sendMessageToGemini } from '../api'
 import { useAutoFocus, useLogseqPage } from '../hooks'
 import { ChatFormValues, ChatMessage, UserInputProps } from '../types'
-import { getPromptContext } from '../utils/get-prompt-context'
-import { writeHistoryToGraph } from '../utils/write-chat-history-to-graph'
+import { getPromptContext, writeHistoryToGraph } from '../utils'
 
 export const UserInput = ({ messages, setMessages }: UserInputProps) => {
   const { page } = useLogseqPage()

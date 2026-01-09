@@ -21,7 +21,7 @@ export const TitleHeader = () => {
           <IconFileText style={{ width: rem(12), height: rem(12) }} />
         }
       >
-        {page?.name.replace(`logseq.settings?.nodeBuddyTag as string:`, '')}
+        {page?.name.replace(`${logseq.settings?.nodeBuddyTag as string}:`, '')}
       </Badge>
     </Group>
   )

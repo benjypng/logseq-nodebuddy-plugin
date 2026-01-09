@@ -12,7 +12,7 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
 import { useAutoFocus, useLogseqPage } from '../hooks'
 import { NewPageFormValues } from '../types'
-import { writeHistoryToGraph } from '../utils/write-chat-history-to-graph'
+import { writeHistoryToGraph } from '../utils'
 
 export const NewChat = () => {
   const { setPage } = useLogseqPage()

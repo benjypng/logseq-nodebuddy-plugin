@@ -1,6 +1,7 @@
 import { BlockEntity } from '@logseq/libs/dist/LSPlugin'
 
 import { ContextItem } from '../types'
+import { processBlockChildren } from '.'
 
 export const getPromptContext = async (prompt: string) => {
   const contextData: ContextItem[] = []
@@ -29,6 +30,18 @@ export const getPromptContext = async (prompt: string) => {
     const blocksContainingTags = await logseq.Editor.getTagObjects(tagIdent)
 
     if (blocksContainingTags && blocksContainingTags.length > 0) {
+      // get children
+      const blockPromises = blocksContainingTags.map((block) =>
+        logseq.Editor.getBlock(block.uuid, { includeChildren: true }),
+      )
+      const fullBlocks = await Promise.all(blockPromises)
+      for (const fullBlock of fullBlocks) {
+        if (fullBlock) {
+          const flattenedContent = processBlockChildren(tagName, fullBlock)
+          contextData.push(...flattenedContent)
+        }
+      }
+
       const tagContent = blocksContainingTags.map((block: BlockEntity) => ({
         source: `Tag #${tagName}`,
         content: block.fullTitle,
