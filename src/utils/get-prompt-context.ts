@@ -7,15 +7,30 @@ export const getPromptContext = async (prompt: string) => {
   const contextData: ContextItem[] = []
 
   if (prompt.includes('@currentpage')) {
+    let blockTree: BlockEntity[] | null = null
+
     const blocks = await logseq.Editor.getCurrentPageBlocksTree()
     if (blocks) {
-      const pageContent = blocks.map((block: BlockEntity) => ({
-        source: 'Current Page Block',
-        content: block.fullTitle,
-        createdAt: block.createdAt,
-        updatedAt: block.updatedAt,
-      }))
-      contextData.push(...pageContent)
+      blockTree = blocks
+    } else {
+      const currPage = await logseq.Editor.getCurrentPage()
+      if (currPage) {
+        const zoomedInBlock = await logseq.Editor.getBlock(currPage.uuid, {
+          includeChildren: true,
+        })
+        if (zoomedInBlock?.children) {
+          blockTree = zoomedInBlock.children as BlockEntity[]
+        }
+      }
+    }
+    if (blockTree) {
+      for (const block of blockTree) {
+        const flattenedContent = processBlockChildren(
+          'Current Page Block',
+          block,
+        )
+        contextData.push(...flattenedContent)
+      }
     }
   }
 
