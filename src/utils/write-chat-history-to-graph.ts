@@ -21,6 +21,9 @@ export const writeHistoryToGraph = {
     if (!tag) throw Error('NodeBuddy: Tag not created')
     await logseq.Editor.addBlockTag(page.uuid, tag.uuid)
 
+    const warningText = `**This page is used for NodeBuddy's chat history. Please do not modify it**. You may navigate away from this page now.`
+    await logseq.Editor.prependBlockInPage(pageName, warningText)
+
     return page
   },
   writeMessage: async (pageName: string, msg: ChatMessage) => {

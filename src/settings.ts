@@ -18,7 +18,7 @@ export const settings: SettingSchemaDesc[] = [
       'gemini-2.5-flash-lite',
       'gemini-2.5-flash',
       'gemini-3-flash',
-      'gemma-3-12bK',
+      'gemma-3-27b',
     ],
     enumPicker: 'select',
   },
