@@ -2,14 +2,10 @@ import { ChatMessage } from '../types'
 
 export const writeHistoryToGraph = {
   createPageAndAddTag: async (title: string) => {
-    const pageName = title
-    let page = await logseq.Editor.getPage(
-      `${logseq.settings?.nodeBuddyTag}:${pageName}`,
-    )
+    const pageName = `${logseq.settings?.nodeBuddyTag}:${title}`
+    let page = await logseq.Editor.getPage(pageName)
     if (!page) {
-      page = await logseq.Editor.createPage(
-        `${logseq.settings?.nodeBuddyTag}:${pageName}`,
-      )
+      page = await logseq.Editor.createPage(pageName)
     } else {
       logseq.App.pushState('page', { name: pageName })
     }

@@ -10,7 +10,7 @@ export const getPromptContext = async (prompt: string) => {
     let blockTree: BlockEntity[] | null = null
 
     const blocks = await logseq.Editor.getCurrentPageBlocksTree()
-    if (blocks) {
+    if (blocks[0]?.uuid) {
       blockTree = blocks
     } else {
       const currPage = await logseq.Editor.getCurrentPage()
