@@ -14,7 +14,11 @@ export const settings: SettingSchemaDesc[] = [
     default: 'gemini-2.5-flash',
     title: 'Model Name',
     description: 'The model ID to use (e.g., gemini-2.5-flash-lite).',
-    enumChoices: ['gemini-2.5-flash-lite', 'gemini-2.5-flash'],
+    enumChoices: [
+      'gemini-2.5-flash-lite',
+      'gemini-2.5-flash',
+      'gemini-3-flash',
+    ],
     enumPicker: 'select',
   },
   {
