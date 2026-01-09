@@ -5,7 +5,11 @@ export const writeHistoryToGraph = {
     const pageName = `${logseq.settings?.nodeBuddyTag}:${title}`
     let page = await logseq.Editor.getPage(pageName)
     if (!page) {
-      page = await logseq.Editor.createPage(pageName)
+      page = await logseq.Editor.createPage(
+        pageName,
+        {},
+        { redirect: false, createFirstBlock: false, journal: false },
+      )
     }
     if (!page) throw Error('NodeBuddy: Page not created')
 
