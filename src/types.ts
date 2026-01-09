@@ -16,11 +16,18 @@ export interface NewPageFormValues {
 
 export type MessageRole = 'user' | 'buddy'
 
+export interface ContextItem {
+  source: string
+  content: string
+  createdAt: number
+  updatedAt: number
+}
+
 export interface ChatMessage {
   id: string
   role: MessageRole
   content: string
-  context?: string[]
+  context?: ContextItem[]
 }
 
 export interface GeminiResponse {
@@ -38,7 +45,7 @@ export interface GeminiResponse {
 
 export interface FormatPromptProps {
   content: string
-  context?: string[]
+  context?: ContextItem[]
 }
 
 export interface MessageBubbleProps {

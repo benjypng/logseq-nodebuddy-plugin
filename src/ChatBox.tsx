@@ -36,8 +36,8 @@ export const ChatBox = () => {
         if (!currPbt) return
         setMessages(
           currPbt
-            .filter((block) => block.content !== '')
-            .map((block) => JSON.parse(block.title)),
+            .filter((block) => block.fullTitle !== '')
+            .map((block) => JSON.parse(block.fullTitle)),
         )
       }
     }
@@ -84,9 +84,9 @@ export const ChatBox = () => {
 
       <ScrollArea flex={1} p="md" viewportRef={viewport}>
         <Stack gap="md">
-          {messages.map((msg) => (
+          {messages.map((msg, index) => (
             <Flex
-              key={msg.id}
+              key={index}
               justify={msg.role === 'user' ? 'flex-end' : 'flex-start'}
               align="flex-start"
               gap="xs"

@@ -6,14 +6,20 @@ export const formatPromptWithContext = ({
 }: FormatPromptProps) => {
   if (!context || context.length === 0) return content
 
-  const contextStr = context.map((block) => `- ${block}`).join('\n')
+  const contextString = context
+    .map((item) => {
+      const dateStr = item.updatedAt
+        ? ` (Date: ${new Date(item.updatedAt).toUTCString()})`
+        : ''
 
-  const contentStr = content.trim()
+      return `[${item.source}]${dateStr}: ${item.content}`
+    })
+    .join('\n')
 
   return `
-Context:
-${contextStr}
+Context Data:
+${contextString}
 
 User Query:
-${contentStr}`
+${content}`
 }

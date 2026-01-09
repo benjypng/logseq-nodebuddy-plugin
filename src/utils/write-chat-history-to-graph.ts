@@ -5,7 +5,9 @@ export const writeHistoryToGraph = {
     const pageName = title
     let page = await logseq.Editor.getPage(pageName)
     if (!page) {
-      page = await logseq.Editor.createPage(pageName)
+      page = await logseq.Editor.createPage(
+        `${logseq.settings?.nodeBuddyTag}:${pageName}`,
+      )
     } else {
       logseq.App.pushState('page', { name: pageName })
     }

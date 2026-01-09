@@ -10,7 +10,7 @@ export const TitleHeader = () => {
   return (
     <Group align="center" justify="space-between" p="sm">
       <Stack gap={0}>
-        <Text fw={700} size="lg">
+        <Text fw={700} size="md">
           NodeBuddy
         </Text>
         <Code>{getModelNameFromSettings()}</Code>
@@ -21,7 +21,7 @@ export const TitleHeader = () => {
           <IconFileText style={{ width: rem(12), height: rem(12) }} />
         }
       >
-        {page?.title}
+        {page?.name.replace(`logseq.settings?.nodeBuddyTag as string:`, '')}
       </Badge>
     </Group>
   )

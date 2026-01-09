@@ -1,5 +1,6 @@
 import { dropWhile } from 'lodash'
 
+import { SCAFFOLD_PROMPT } from '../constants'
 import { ChatMessage, GeminiResponse } from '../types'
 import { formatPromptWithContext } from '../utils'
 import { api } from '.'
@@ -23,6 +24,14 @@ export const sendMessageToGemini = async (messages: ChatMessage[]) => {
     }
   })
 
-  const response = await api().post({ contents }).json<GeminiResponse>()
+  const response = await api()
+    .post({
+      systemInstruction: { parts: [{ text: SCAFFOLD_PROMPT }] },
+      contents: contents,
+      generationConfig: {
+        temperature: 0.7,
+      },
+    })
+    .json<GeminiResponse>()
   return response.candidates?.[0]?.content?.parts?.[0]?.text || ''
 }

@@ -5,6 +5,7 @@ import { Controller, SubmitHandler, useFormContext } from 'react-hook-form'
 import { sendMessageToGemini } from '../api'
 import { useAutoFocus, useLogseqPage } from '../hooks'
 import { ChatFormValues, ChatMessage, UserInputProps } from '../types'
+import { getPromptContext } from '../utils/get-prompt-context'
 import { writeHistoryToGraph } from '../utils/write-chat-history-to-graph'
 
 export const UserInput = ({ messages, setMessages }: UserInputProps) => {
@@ -19,11 +20,12 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
   const onSubmit: SubmitHandler<ChatFormValues> = async (data) => {
     if (!data.prompt.trim()) return
 
+    const promptContext = await getPromptContext(data.prompt)
     const userMsg: ChatMessage = {
       id: Date.now().toString(),
       role: 'user',
       content: data.prompt,
-      //TODO: Add support for context
+      context: promptContext,
     }
     await writeHistoryToGraph.writeMessage(page.name, userMsg)
 
@@ -38,7 +40,6 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
     reset()
 
     try {
-      //TODO: Need to get history from page when implementing resuming chat
       const history = [...messages, userMsg]
       const responseContent = await sendMessageToGemini(history)
       await writeHistoryToGraph.writeMessage(page.name, {
