@@ -15,4 +15,12 @@ export const settings: SettingSchemaDesc[] = [
     title: 'Model Name',
     description: 'The model ID to use (e.g., gemini-1.5-pro).',
   },
+  {
+    key: 'nodeBuddyTag',
+    type: 'string',
+    default: 'NodeBuddy',
+    title: 'NodeBuddy Page Tag',
+    description:
+      'NodeBuddy chat histories are stored on pages in the graph. Indicate the tag used for these pages.',
+  },
 ]

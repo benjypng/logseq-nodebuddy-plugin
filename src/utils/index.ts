@@ -1,3 +1,4 @@
+export * from './check-if-nodebuddy-page'
 export * from './format-prompt-for-context'
 export * from './get-api-key-from-settings'
 export * from './get-gemini-url'

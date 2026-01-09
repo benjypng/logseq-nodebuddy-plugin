@@ -4,16 +4,21 @@ import { useEffect } from 'react'
 import { Controller, SubmitHandler, useFormContext } from 'react-hook-form'
 
 import { sendMessageToGemini } from '../api'
+import { useLogseqPage } from '../hooks'
 import {
+  ChatFormValues,
   ChatMessage,
-  FormValues,
   UserInputProps,
   VisibilityProps,
 } from '../types'
+import { writeHistoryToGraph } from '../utils/write-chat-history-to-graph'
 
 export const UserInput = ({ messages, setMessages }: UserInputProps) => {
+  const { page } = useLogseqPage()
+  if (!page) return
+
   const { control, handleSubmit, reset, setFocus } =
-    useFormContext<FormValues>()
+    useFormContext<ChatFormValues>()
 
   useEffect(() => {
     const handleVisibility = ({ visible }: VisibilityProps) => {
@@ -30,7 +35,7 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
     }
   }, [setFocus])
 
-  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+  const onSubmit: SubmitHandler<ChatFormValues> = async (data) => {
     if (!data.prompt.trim()) return
 
     const userMsg: ChatMessage = {
@@ -39,6 +44,7 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
       content: data.prompt,
       //TODO: Add support for context
     }
+    await writeHistoryToGraph.writeMessage(page.name, userMsg)
 
     const buddyId = (Date.now() + 1).toString()
     const initialBuddyMsg: ChatMessage = {
@@ -51,8 +57,14 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
     reset()
 
     try {
+      //TODO: Need to get history from page when implementing resuming chat
       const history = [...messages, userMsg]
       const responseContent = await sendMessageToGemini(history)
+      await writeHistoryToGraph.writeMessage(page.name, {
+        id: Date.now().toString(),
+        role: 'buddy',
+        content: responseContent,
+      })
 
       setMessages((prev) =>
         prev.map((msg) =>
@@ -94,7 +106,7 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
         <ActionIcon
           type="submit"
           variant="filled"
-          size="input-xs"
+          size="input-sm"
           aria-label="Send message"
           mb={0}
         >

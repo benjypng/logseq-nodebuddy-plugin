@@ -1,7 +1,17 @@
+import { PageEntity } from '@logseq/libs/dist/LSPlugin'
 import { Dispatch, SetStateAction } from 'react'
 
-export interface FormValues {
+export interface LogseqPageContextInterface {
+  page: PageEntity | null
+  setPage: (page: PageEntity | null) => void
+}
+
+export interface ChatFormValues {
   prompt: string
+}
+
+export interface NewPageFormValues {
+  title: string
 }
 
 export type MessageRole = 'user' | 'buddy'
@@ -47,4 +57,12 @@ export interface UserInputProps {
 
 export interface VisibilityProps {
   visible: boolean
+}
+
+export interface NewChatProps {
+  setPage: Dispatch<SetStateAction<PageEntity | undefined>>
+}
+
+export interface ChatBoxProps {
+  page: PageEntity
 }

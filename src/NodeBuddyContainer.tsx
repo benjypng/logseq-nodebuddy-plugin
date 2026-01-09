@@ -1,33 +1,14 @@
-import {
-  Divider,
-  Flex,
-  ScrollArea,
-  Stack,
-  useMantineColorScheme,
-} from '@mantine/core'
-import { useEffect, useRef, useState } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
+import { PageEntity } from '@logseq/libs/dist/LSPlugin'
+import { Stack, useMantineColorScheme } from '@mantine/core'
+import { useEffect, useState } from 'react'
 
-import { TitleHeader, UserInput } from './components'
-import { Avatar } from './components/Avatar'
-import { MessageBubble } from './components/MessageBubble'
-import { ChatMessage, FormValues } from './types'
+import { ChatBox } from './ChatBox'
+import { NewChat } from './components'
+import { LogseqPageContext } from './hooks'
 
 export const NodeBuddyContainer = () => {
-  const viewport = useRef<HTMLDivElement>(null)
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 'init-1',
-      role: 'buddy',
-      content:
-        'I am ready. Select blocks in your graph to set context, or just ask me a question.',
-    },
-  ])
-
-  const formMethods = useForm<FormValues>({
-    defaultValues: { prompt: '' },
-  })
-  const { colorScheme, setColorScheme } = useMantineColorScheme()
+  const [page, setPage] = useState<PageEntity | null>(null)
+  const { setColorScheme } = useMantineColorScheme()
 
   useEffect(() => {
     const cleanup = logseq.App.onThemeModeChanged(({ mode }) => {
@@ -57,40 +38,19 @@ export const NodeBuddyContainer = () => {
   }, [])
 
   useEffect(() => {
-    viewport.current?.scrollTo({
-      top: viewport.current.scrollHeight,
-      behavior: 'smooth',
-    })
-  }, [messages])
+    const getCurrentPage = async () => {
+      const currPage = await logseq.Editor.getCurrentPage()
+      console.log(currPage)
+    }
+    getCurrentPage()
+  }, [page])
 
   return (
-    <FormProvider {...formMethods}>
-      <Flex direction="column" h="100vh" w="100%" bg="body">
-        <TitleHeader />
-
-        <Divider />
-
-        <ScrollArea flex={1} p="md" viewportRef={viewport}>
-          <Stack gap="md">
-            {messages.map((msg) => (
-              <Flex
-                key={msg.id}
-                justify={msg.role === 'user' ? 'flex-end' : 'flex-start'}
-                align="flex-start"
-                gap="xs"
-              >
-                {msg.role === 'buddy' && <Avatar role={'buddy'} />}
-
-                <MessageBubble msg={msg} colorScheme={colorScheme} />
-
-                {msg.role === 'user' && <Avatar role={'user'} />}
-              </Flex>
-            ))}
-          </Stack>
-        </ScrollArea>
-
-        <UserInput messages={messages} setMessages={setMessages} />
-      </Flex>
-    </FormProvider>
+    <Stack h="100vh" w="100%" bg="body" gap="xs">
+      <LogseqPageContext.Provider value={{ page, setPage }}>
+        {!page && <NewChat />}
+        {page && <ChatBox />}
+      </LogseqPageContext.Provider>
+    </Stack>
   )
 }
