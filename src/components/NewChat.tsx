@@ -51,7 +51,10 @@ export const NewChat = () => {
         setExistingChats(pagesContainingTags)
       }
     }
-    getExistingChats()
+    const timer = setTimeout(() => {
+      getExistingChats()
+    }, 1000)
+    return () => clearTimeout(timer)
   }, [page])
 
   const onSubmit: SubmitHandler<NewPageFormValues> = async (data) => {

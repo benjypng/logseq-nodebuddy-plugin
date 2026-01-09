@@ -12,14 +12,7 @@ import { isNodeBuddyPage } from './utils'
 export const ChatBox = () => {
   const { page } = useLogseqPage()
   const viewport = useRef<HTMLDivElement>(null)
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 'init-1',
-      role: 'buddy',
-      content:
-        'I am NodeBuddy, your Logseq AI assistant. Use #tag or @currentpage to add blocks to your context. Feel free to ask me for any help!',
-    },
-  ])
+  const [messages, setMessages] = useState<ChatMessage[]>([])
 
   const formMethods = useForm<ChatFormValues>({
     defaultValues: { prompt: '' },
@@ -30,15 +23,25 @@ export const ChatBox = () => {
     const getExistingMessages = async () => {
       if (!page) return
       const nodeBuddyPage = await isNodeBuddyPage(page.id)
-
       if (nodeBuddyPage) {
         const currPbt = await logseq.Editor.getPageBlocksTree(page.name)
         if (!currPbt) return
-        setMessages(
-          currPbt
-            .filter((block) => block.fullTitle !== '')
-            .map((block) => JSON.parse(block.fullTitle)),
-        )
+        if (currPbt.length === 0) {
+          setMessages([
+            {
+              id: 'init-1',
+              role: 'buddy',
+              content:
+                'I am NodeBuddy, your Logseq AI assistant. Use #tag or @currentpage to add blocks to your context. Feel free to ask me for any help!',
+            },
+          ])
+        } else {
+          setMessages(
+            currPbt
+              .filter((block) => block.fullTitle !== '')
+              .map((block) => JSON.parse(block.fullTitle)),
+          )
+        }
       }
     }
     getExistingMessages()

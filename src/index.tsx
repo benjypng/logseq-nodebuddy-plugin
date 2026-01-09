@@ -8,7 +8,9 @@ import { NodeBuddyContainer } from './NodeBuddyContainer'
 import { settings } from './settings'
 
 const main = async () => {
-  logseq.UI.showMsg('logseq-nodebuddy-plugin loaded')
+  setTimeout(() => {
+    logseq.UI.showMsg('logseq-nodebuddy-plugin loaded')
+  }, 1500)
 
   logseq.provideStyle(`
     body {
