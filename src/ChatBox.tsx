@@ -32,13 +32,17 @@ export const ChatBox = () => {
       const nodeBuddyPage = await isNodeBuddyPage(page.id)
 
       if (nodeBuddyPage) {
-        const currPbt = await logseq.Editor.getCurrentPageBlocksTree()
+        const currPbt = await logseq.Editor.getPageBlocksTree(page.name)
         if (!currPbt) return
-        setMessages(currPbt.map((block) => JSON.parse(block.title)))
+        setMessages(
+          currPbt
+            .filter((block) => block.content !== '')
+            .map((block) => JSON.parse(block.title)),
+        )
       }
     }
     getExistingMessages()
-  }, [])
+  }, [page])
 
   useEffect(() => {
     const cleanup = logseq.App.onThemeModeChanged(({ mode }) => {

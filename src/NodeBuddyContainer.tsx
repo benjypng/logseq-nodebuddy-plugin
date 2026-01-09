@@ -37,14 +37,6 @@ export const NodeBuddyContainer = () => {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  useEffect(() => {
-    const getCurrentPage = async () => {
-      const currPage = await logseq.Editor.getCurrentPage()
-      console.log(currPage)
-    }
-    getCurrentPage()
-  }, [page])
-
   return (
     <Stack h="100vh" w="100%" bg="body" gap="xs">
       <LogseqPageContext.Provider value={{ page, setPage }}>
