@@ -6,14 +6,19 @@ import { processBlockChildren } from '.'
 export const getPromptContext = async (prompt: string) => {
   const contextData: ContextItem[] = []
 
+  /*
+   Handle @current page
+  */
   if (prompt.includes('@currentpage')) {
     let blockTree: BlockEntity[] | null = null
-
     const blocks = await logseq.Editor.getCurrentPageBlocksTree()
-    if (blocks[0]?.uuid) {
+
+    let currPageRef = ''
+    if (blocks && blocks.length > 0) {
       blockTree = blocks
     } else {
       const currPage = await logseq.Editor.getCurrentPage()
+      currPageRef = currPage?.fullTitle as string
       if (currPage) {
         const zoomedInBlock = await logseq.Editor.getBlock(currPage.uuid, {
           includeChildren: true,
@@ -26,7 +31,8 @@ export const getPromptContext = async (prompt: string) => {
     if (blockTree) {
       for (const block of blockTree) {
         const flattenedContent = processBlockChildren(
-          'Current Page Block',
+          'current-page',
+          currPageRef,
           block,
         )
         contextData.push(...flattenedContent)
@@ -34,36 +40,70 @@ export const getPromptContext = async (prompt: string) => {
     }
   }
 
-  const tagMatch = prompt.match(/#(\w+)/)
-  if (tagMatch && tagMatch[1]) {
-    const tagName = tagMatch[1]
+  /*
+   Handle @tags
+  */
+  const tagMatches = [...prompt.matchAll(/#(\w+)/g)]
+  for (const match of tagMatches) {
+    const tagName = match[1]
+    if (!tagName) continue
     const tagPage = await logseq.Editor.getPage(tagName)
-    if (!tagPage) return
-    const tagIdent = tagPage.ident
-    if (!tagIdent) return
 
-    const blocksContainingTags = await logseq.Editor.getTagObjects(tagIdent)
-
+    if (!tagPage?.ident) continue
+    const blocksContainingTags = await logseq.Editor.getTagObjects(
+      tagPage.ident,
+    )
     if (blocksContainingTags && blocksContainingTags.length > 0) {
-      // get children
       const blockPromises = blocksContainingTags.map((block) =>
         logseq.Editor.getBlock(block.uuid, { includeChildren: true }),
       )
       const fullBlocks = await Promise.all(blockPromises)
       for (const fullBlock of fullBlocks) {
         if (fullBlock) {
-          const flattenedContent = processBlockChildren(tagName, fullBlock)
+          const flattenedContent = processBlockChildren(
+            'tag',
+            tagName,
+            fullBlock,
+          )
           contextData.push(...flattenedContent)
         }
       }
+    }
+  }
 
-      const tagContent = blocksContainingTags.map((block: BlockEntity) => ({
-        source: `Tag #${tagName}`,
-        content: block.fullTitle,
-        createdAt: block.createdAt,
-        updatedAt: block.updatedAt,
-      }))
-      contextData.push(...tagContent)
+  /*
+   Handle [[block references]]
+   */
+  const pageRefMatches = [...prompt.matchAll(/\[\[(.*?)\]\]/g)]
+
+  for (const match of pageRefMatches) {
+    const pageRef = match[1]
+    if (!pageRef) continue
+
+    const pageLinkedRefs = await logseq.Editor.getPageLinkedReferences(pageRef)
+    if (!pageLinkedRefs) continue
+
+    const refs = pageLinkedRefs as unknown as Record<string, BlockEntity[]>
+
+    const linkedBlocks = Object.values(refs).flat()
+
+    if (linkedBlocks && linkedBlocks.length > 0) {
+      const blockPromises = linkedBlocks.map((block) =>
+        logseq.Editor.getBlock(block.uuid, { includeChildren: true }),
+      )
+
+      const fullBlocks = await Promise.all(blockPromises)
+
+      for (const fullBlock of fullBlocks) {
+        if (fullBlock) {
+          const flattenedContent = processBlockChildren(
+            'page-reference',
+            pageRef,
+            fullBlock,
+          )
+          contextData.push(...flattenedContent)
+        }
+      }
     }
   }
 
