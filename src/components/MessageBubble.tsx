@@ -1,4 +1,4 @@
-import { Box, Paper, Stack, Text } from '@mantine/core'
+import { Box, Loader, Paper, Stack, Text } from '@mantine/core'
 
 import { MessageBubbleProps } from '../types'
 
@@ -22,7 +22,11 @@ export const MessageBubble = ({ colorScheme, msg }: MessageBubbleProps) => {
         }
       >
         <Box component="div" style={{ whiteSpace: 'pre-wrap' }}>
-          <Text size="sm">{content}</Text>
+          {content === 'Thinking...' ? (
+            <Loader type="dots" size="xs" />
+          ) : (
+            <Text size="sm">{content}</Text>
+          )}
         </Box>
       </Paper>
 

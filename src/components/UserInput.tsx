@@ -94,7 +94,7 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
         <ActionIcon
           type="submit"
           variant="filled"
-          size="input-sm"
+          size="input-xs"
           aria-label="Send message"
           mb={0}
         >
