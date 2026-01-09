@@ -8,11 +8,10 @@ import {
   Title,
 } from '@mantine/core'
 import { IconPlus } from '@tabler/icons-react'
-import { useEffect } from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
-import { useLogseqPage } from '../hooks'
-import { NewPageFormValues, VisibilityProps } from '../types'
+import { useAutoFocus, useLogseqPage } from '../hooks'
+import { NewPageFormValues } from '../types'
 import { writeHistoryToGraph } from '../utils/write-chat-history-to-graph'
 
 export const NewChat = () => {
@@ -26,20 +25,7 @@ export const NewChat = () => {
     defaultValues: { title: '' },
   })
 
-  useEffect(() => {
-    const handleVisibility = ({ visible }: VisibilityProps) => {
-      if (visible) {
-        setTimeout(() => {
-          window.focus()
-          setFocus('title')
-        }, 100)
-      }
-    }
-    logseq.on('ui:visible:changed', handleVisibility)
-    return () => {
-      logseq.off('ui:visible:changed', handleVisibility)
-    }
-  }, [setFocus])
+  useAutoFocus(setFocus, 'title')
 
   const onSubmit: SubmitHandler<NewPageFormValues> = async (data) => {
     if (!data.title) return

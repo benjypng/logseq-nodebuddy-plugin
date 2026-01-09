@@ -1,1 +1,2 @@
-export * from './use-logseq-page'
+export * from './useAutoFocus'
+export * from './useLogseqPage'

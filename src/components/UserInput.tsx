@@ -1,16 +1,10 @@
 import { ActionIcon, Group, Textarea } from '@mantine/core'
 import { IconSend } from '@tabler/icons-react'
-import { useEffect } from 'react'
 import { Controller, SubmitHandler, useFormContext } from 'react-hook-form'
 
 import { sendMessageToGemini } from '../api'
-import { useLogseqPage } from '../hooks'
-import {
-  ChatFormValues,
-  ChatMessage,
-  UserInputProps,
-  VisibilityProps,
-} from '../types'
+import { useAutoFocus, useLogseqPage } from '../hooks'
+import { ChatFormValues, ChatMessage, UserInputProps } from '../types'
 import { writeHistoryToGraph } from '../utils/write-chat-history-to-graph'
 
 export const UserInput = ({ messages, setMessages }: UserInputProps) => {
@@ -20,20 +14,7 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
   const { control, handleSubmit, reset, setFocus } =
     useFormContext<ChatFormValues>()
 
-  useEffect(() => {
-    const handleVisibility = ({ visible }: VisibilityProps) => {
-      if (visible) {
-        setTimeout(() => {
-          window.focus()
-          setFocus('prompt')
-        }, 100)
-      }
-    }
-    logseq.on('ui:visible:changed', handleVisibility)
-    return () => {
-      logseq.off('ui:visible:changed', handleVisibility)
-    }
-  }, [setFocus])
+  useAutoFocus(setFocus, 'prompt')
 
   const onSubmit: SubmitHandler<ChatFormValues> = async (data) => {
     if (!data.prompt.trim()) return
