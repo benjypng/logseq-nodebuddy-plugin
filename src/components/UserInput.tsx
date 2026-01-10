@@ -2,7 +2,7 @@ import { ActionIcon, Group, Textarea } from '@mantine/core'
 import { IconSend } from '@tabler/icons-react'
 import { Controller, SubmitHandler, useFormContext } from 'react-hook-form'
 
-import { sendMessageToGemini } from '../api'
+import { sendMessageToLLM } from '../api'
 import { useAutoFocus, useLogseqPage } from '../hooks'
 import { ChatFormValues, ChatMessage, UserInputProps } from '../types'
 import { getPromptContext, writeHistoryToGraph } from '../utils'
@@ -40,7 +40,7 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
 
     try {
       const history = [...messages, userMsg]
-      const responseContent = await sendMessageToGemini(history)
+      const responseContent = await sendMessageToLLM(history)
       await writeHistoryToGraph.writeMessage(page.name, {
         id: Date.now().toString(),
         role: 'buddy',

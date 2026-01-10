@@ -1,11 +1,13 @@
 import { Button, Code, Group, rem, Stack, Text, Tooltip } from '@mantine/core'
 import { IconFileText, IconPencilPlus } from '@tabler/icons-react'
+import { useEffect, useState } from 'react'
 
 import { useLogseqPage } from '../hooks'
 import { formatChatName, getModelNameFromSettings } from '../utils'
 
 export const TitleHeader = () => {
   const { page, setPage } = useLogseqPage()
+  const [modelName, setModelName] = useState('')
   const badgeLabel = formatChatName(page?.name ?? 'Error')
 
   const goToChatHistory = () => {
@@ -14,13 +16,23 @@ export const TitleHeader = () => {
     })
   }
 
+  useEffect(() => {
+    setModelName(getModelNameFromSettings())
+    const cleanup = logseq.onSettingsChanged(() => {
+      setModelName(getModelNameFromSettings())
+    })
+    return () => {
+      cleanup?.()
+    }
+  }, [])
+
   return (
     <Group align="center" justify="space-between" p="sm">
       <Stack gap={0}>
         <Text fw={700} size="md">
           NodeBuddy
         </Text>
-        <Code>{getModelNameFromSettings()}</Code>
+        <Code>{modelName}</Code>
       </Stack>
       <Group gap={2}>
         <Tooltip label="Go to chat history">

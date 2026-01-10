@@ -1,0 +1,18 @@
+import { dropWhile } from 'lodash'
+
+import { ChatMessage } from '../types'
+import { getModelNameFromSettings } from '../utils'
+import { handleGemini, handleGemma } from '.'
+
+export const sendMessageToLLM = async (messages: ChatMessage[]) => {
+  const validMessages = dropWhile(messages, (m) => m.role !== 'user')
+  if (validMessages.length === 0) return ''
+
+  const model = getModelNameFromSettings()
+
+  if (model.startsWith('gemma')) {
+    return await handleGemma(validMessages)
+  } else {
+    return await handleGemini(validMessages)
+  }
+}

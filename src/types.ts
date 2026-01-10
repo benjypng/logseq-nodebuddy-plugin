@@ -1,6 +1,13 @@
 import { PageEntity } from '@logseq/libs/dist/LSPlugin'
 import { Dispatch, SetStateAction } from 'react'
 
+export type GoogleModels =
+  | 'gemini-2.5-flash-lite'
+  | 'gemini-2.5-flash'
+  | 'gemini-3-flash'
+  | 'gemma3:27b'
+  | 'gemma2:27b'
+
 export interface LogseqPageContextInterface {
   page: PageEntity | null
   setPage: (page: PageEntity | null) => void
@@ -43,6 +50,17 @@ export interface GeminiResponse {
     message: string
     status: string
   }
+}
+
+export interface GemmaResponse {
+  model: string
+  created_at: string
+  message: {
+    role: 'assistant' | 'user' | 'system'
+    content: string
+    images?: string[] | null
+  }
+  done: boolean
 }
 
 export interface FormatPromptProps {

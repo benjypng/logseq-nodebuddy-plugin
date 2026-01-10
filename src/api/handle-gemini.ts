@@ -5,7 +5,7 @@ import { ChatMessage, GeminiResponse } from '../types'
 import { formatPromptWithContext } from '../utils'
 import { api } from '.'
 
-export const sendMessageToGemini = async (messages: ChatMessage[]) => {
+export const handleGemini = async (messages: ChatMessage[]) => {
   const validMessages = dropWhile(messages, (m) => m.role !== 'user')
   if (validMessages.length === 0) return ''
 
@@ -23,7 +23,6 @@ export const sendMessageToGemini = async (messages: ChatMessage[]) => {
       ],
     }
   })
-
   const response = await api()
     .post({
       systemInstruction: { parts: [{ text: SCAFFOLD_PROMPT }] },
