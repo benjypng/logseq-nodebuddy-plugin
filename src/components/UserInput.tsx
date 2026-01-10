@@ -26,7 +26,11 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
       content: data.prompt,
       context: promptContext,
     }
-    await writeHistoryToGraph.writeMessage(page.name, userMsg)
+    await writeHistoryToGraph.writeMessage(page.name, {
+      id: Date.now().toString(),
+      role: 'user',
+      content: data.prompt,
+    })
 
     const buddyId = (Date.now() + 1).toString()
     const initialBuddyMsg: ChatMessage = {
