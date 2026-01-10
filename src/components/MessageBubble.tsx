@@ -1,9 +1,79 @@
-import { Box, Loader, Paper, Stack, Text } from '@mantine/core'
+import {
+  Anchor,
+  Box,
+  Code,
+  Loader,
+  Paper,
+  Stack,
+  Text,
+  Title,
+} from '@mantine/core'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 import { MessageBubbleProps } from '../types'
 
 export const MessageBubble = ({ colorScheme, msg }: MessageBubbleProps) => {
   const { role, content, context } = msg
+
+  const markdownComponents: any = {
+    p: ({ children }: any) => (
+      <Text size="sm" mb="xs" style={{ lineHeight: 1.5 }}>
+        {children}
+      </Text>
+    ),
+    code: ({ inline, children, ...props }: any) => {
+      if (inline) {
+        return <Code {...props}>{children}</Code>
+      }
+      return (
+        <Code block mb="sm" {...props} style={{ overflowX: 'auto' }}>
+          {children}
+        </Code>
+      )
+    },
+    a: ({ href, children }: any) => (
+      <Anchor href={href} target="_blank" rel="noopener noreferrer" size="sm">
+        {children}
+      </Anchor>
+    ),
+    h1: ({ children }: any) => (
+      <Title order={3} size="h5" mb="xs">
+        {children}
+      </Title>
+    ),
+    h2: ({ children }: any) => (
+      <Title order={4} size="h6" mb="xs">
+        {children}
+      </Title>
+    ),
+    h3: ({ children }: any) => (
+      <Text fw={700} size="sm" mb="xs">
+        {children}
+      </Text>
+    ),
+    ul: ({ children }: any) => (
+      <Box
+        component="ul"
+        pl="md"
+        my="xs"
+        style={{ fontSize: 'var(--mantine-font-size-sm)' }}
+      >
+        {children}
+      </Box>
+    ),
+    ol: ({ children }: any) => (
+      <Box
+        component="ol"
+        pl="md"
+        my="xs"
+        style={{ fontSize: 'var(--mantine-font-size-sm)' }}
+      >
+        {children}
+      </Box>
+    ),
+    li: ({ children }: any) => <li style={{ marginBottom: 4 }}>{children}</li>,
+  }
 
   return (
     <Stack gap={4} maw="80%">
@@ -21,11 +91,16 @@ export const MessageBubble = ({ colorScheme, msg }: MessageBubbleProps) => {
               : 'gray.0'
         }
       >
-        <Box component="div" style={{ whiteSpace: 'pre-wrap' }}>
+        <Box component="div" style={{ wordBreak: 'break-word' }}>
           {content === 'Thinking...' ? (
             <Loader type="dots" size="xs" />
           ) : (
-            <Text size="sm">{content}</Text>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={markdownComponents}
+            >
+              {content}
+            </ReactMarkdown>
           )}
         </Box>
       </Paper>
