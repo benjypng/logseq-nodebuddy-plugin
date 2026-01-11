@@ -18,14 +18,18 @@ export const MessageBubble = ({ colorScheme, msg }: MessageBubbleProps) => {
 
   const markdownComponents: any = {
     p: ({ children }: any) => (
-      <Text size="sm" mb="xs" style={{ lineHeight: 1.5 }}>
+      <Text component="div" size="sm" mb="xs" style={{ lineHeight: 1.5 }}>
         {children}
       </Text>
     ),
-    code: ({ inline, children, ...props }: any) => {
-      if (inline) {
+    code: ({ inline, className, children, ...props }: any) => {
+      const match = /language-(\w+)/.exec(className || '')
+      const isBlock = match || inline === false
+
+      if (!isBlock) {
         return <Code {...props}>{children}</Code>
       }
+
       return (
         <Code block mb="sm" {...props} style={{ overflowX: 'auto' }}>
           {children}

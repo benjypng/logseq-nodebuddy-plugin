@@ -14,7 +14,7 @@ export const getPromptContext = async (prompt: string) => {
     const blocks = await logseq.Editor.getCurrentPageBlocksTree()
 
     let currPageRef = ''
-    if (blocks && blocks.length > 0) {
+    if (blocks && blocks.length > 0 && blocks[0]?.title) {
       blockTree = blocks
     } else {
       const currPage = await logseq.Editor.getCurrentPage()
