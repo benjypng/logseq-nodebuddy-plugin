@@ -41,7 +41,7 @@ export interface ChatMessage {
 export interface GeminiResponse {
   candidates?: {
     content: {
-      parts: { text: string }[]
+      parts: { text: string; functionCall?: { name: string; args: string } }[]
     }
   }[]
   error?: {
