@@ -30,4 +30,11 @@ export const settings: SettingSchemaDesc[] = [
     description:
       'NodeBuddy chat histories are stored on pages in the graph. Indicate the tag used for these pages.',
   },
+  {
+    key: 'userPrompt',
+    type: 'string',
+    default: '',
+    title: 'User Prompt',
+    description: 'Add your own scaffold prompt for NodeBuddy.',
+  },
 ]
