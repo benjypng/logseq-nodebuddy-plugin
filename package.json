@@ -17,16 +17,12 @@
     "lint:precommit": "echo \"Running eslint\" && bunx eslint . --fix && echo \"Running tsc\" && tsc && echo \"Running build\" && bun run build"
   },
   "release": {
-    "branches": [
-      "main"
-    ],
+    "branches": ["main"],
     "plugins": [
       [
         "@semantic-release/github",
         {
-          "assets": [
-            "logseq-nodebuddy-plugin.zip"
-          ]
+          "assets": ["logseq-nodebuddy-plugin.zip"]
         }
       ]
     ]
@@ -48,7 +44,6 @@
     "wretch": "^3.0.6"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.3.11",
     "@eslint/js": "^9.8.0",
     "@types/eslint": "^9.6.1",
     "@types/eslint-config-prettier": "^6.11.3",

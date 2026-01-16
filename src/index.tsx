@@ -1,16 +1,16 @@
-import "@mantine/core/styles.css";
-import "@logseq/libs";
+import '@mantine/core/styles.css'
+import '@logseq/libs'
 
-import { MantineProvider } from "@mantine/core";
-import { createRoot } from "react-dom/client";
+import { MantineProvider } from '@mantine/core'
+import { createRoot } from 'react-dom/client'
 
-import { NodeBuddyContainer } from "./NodeBuddyContainer";
-import { settings } from "./settings";
+import { NodeBuddyContainer } from './NodeBuddyContainer'
+import { settings } from './settings'
 
 const main = async () => {
   setTimeout(() => {
-    logseq.UI.showMsg("logseq-nodebuddy-plugin loaded");
-  }, 1500);
+    logseq.UI.showMsg('logseq-nodebuddy-plugin loaded')
+  }, 1500)
 
   logseq.provideStyle(`
     body {
@@ -41,40 +41,40 @@ const main = async () => {
 
     div.preboot-loading {
       display: none !important;
-    }`);
+    }`)
 
   logseq.setMainUIInlineStyle({
-    position: "fixed",
+    position: 'fixed',
     zIndex: 11,
     top: 0,
     left: 0,
-    right: "auto",
-    width: "20rem",
-  });
+    right: 'auto',
+    width: '20rem',
+  })
 
-  const el = document.getElementById("app");
-  if (!el) return;
-  const root = createRoot(el);
+  const el = document.getElementById('app')
+  if (!el) return
+  const root = createRoot(el)
 
   root.render(
     <MantineProvider>
       <NodeBuddyContainer />
     </MantineProvider>,
-  );
+  )
 
   logseq.App.registerCommandPalette(
     {
-      key: "logseq-searchreplace-plugin",
-      label: "Better Search: Open",
+      key: 'logseq-searchreplace-plugin',
+      label: 'Better Search: Open',
       keybinding: {
-        mode: "global",
-        binding: "mod+shift+n",
+        mode: 'global',
+        binding: 'mod+shift+n',
       },
     },
     async () => {
-      logseq.toggleMainUI();
+      logseq.toggleMainUI()
     },
-  );
-};
+  )
+}
 
-logseq.useSettingsSchema(settings).ready(main).catch(console.error);
+logseq.useSettingsSchema(settings).ready(main).catch(console.error)
