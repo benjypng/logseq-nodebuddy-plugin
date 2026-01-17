@@ -10,7 +10,7 @@ export const handleGemini = async (messages: ChatMessage[]) => {
   const validMessages = dropWhile(messages, (m) => m.role !== 'user')
   if (validMessages.length === 0) return ''
 
-  const contents = validMessages.map((msg) => {
+  const contents: any[] = validMessages.map((msg) => {
     const { role, content, context } = msg
     return {
       role: role === 'buddy' ? 'model' : 'user',
@@ -52,22 +52,22 @@ export const handleGemini = async (messages: ChatMessage[]) => {
     if (part?.functionCall) {
       const call = part.functionCall
 
-      const _toolResult = await executeTool(call.name, call.args)
+      const toolResult = await executeTool(call.name, call.args)
 
-      //if (!candidateContent) return
-      //contents.push(candidateContent)
+      if (!candidateContent) return ''
+      contents.push(candidateContent)
 
-      //contents.push({
-      //  role: 'function',
-      //  parts: [
-      //    {
-      //      functionResponse: {
-      //        name: call.name,
-      //        response: { name: call.name, content: toolResult },
-      //      },
-      //    },
-      //  ],
-      //})
+      contents.push({
+        role: 'function',
+        parts: [
+          {
+            functionResponse: {
+              name: call.name,
+              response: { name: call.name, content: toolResult },
+            },
+          },
+        ],
+      })
 
       continue
     }
