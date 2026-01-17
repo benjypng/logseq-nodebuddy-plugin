@@ -32,7 +32,7 @@ export const ChatBox = () => {
               id: 'init-1',
               role: 'buddy',
               content:
-                'I am NodeBuddy, your Logseq AI assistant. Use #tag or @currentpage to add blocks to your context. Feel free to ask me for any help!',
+                'I am NodeBuddy, your Logseq AI assistant. Use #tag, [[block references]] or @currentpage to add blocks to your context. Feel free to ask me for any help!',
             },
           ])
         } else {
