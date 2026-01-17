@@ -25,53 +25,63 @@ export const handleGemini = async (messages: ChatMessage[]) => {
     }
   })
 
-  while (true) {
+  let iterations = 0
+  const maxIterations = 5
+
+  while (iterations < maxIterations) {
+    iterations++
+
     const response = await api()
       .post({
         systemInstruction: { parts: [{ text: SCAFFOLD_PROMPT }] },
         contents: contents,
         tools: GEMINI_TOOLS,
-        toolConfig: {
-          functionCallingConfig: {
-            mode: 'AUTO',
-          },
-        },
         generationConfig: {
           temperature: 0.7,
         },
       })
       .json<GeminiResponse>()
 
-    const candidateContent = response.candidates?.[0]?.content
-    const part = candidateContent?.parts?.[0]
+    const candidate = response.candidates?.[0]
+    const content = candidate?.content
 
-    if (part?.text) {
-      return part.text
-    }
+    if (!content || !content.parts) break
 
-    if (part?.functionCall) {
-      const call = part.functionCall
+    const functionCalls = content.parts.filter((p: any) => p.functionCall)
 
-      const toolResult = await executeTool(call.name, call.args)
+    if (functionCalls.length > 0) {
+      contents.push(content)
 
-      if (!candidateContent) return ''
-      contents.push(candidateContent)
+      const functionResponses = []
+
+      for (const part of functionCalls) {
+        const call = part.functionCall
+        if (!call || !call.name) continue
+        const result = await executeTool(call?.name, call?.args)
+
+        functionResponses.push({
+          functionResponse: {
+            name: call?.name,
+            response: { name: call?.name, content: result },
+          },
+        })
+      }
 
       contents.push({
         role: 'function',
-        parts: [
-          {
-            functionResponse: {
-              name: call.name,
-              response: { name: call.name, content: toolResult },
-            },
-          },
-        ],
+        parts: functionResponses,
       })
 
       continue
     }
 
-    return ''
+    const textPart = content.parts.find((p: any) => p.text)
+    if (textPart) {
+      return textPart.text
+    }
+
+    break
   }
+
+  return 'Error: No text response received from Gemini.'
 }
