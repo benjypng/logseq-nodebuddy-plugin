@@ -15,8 +15,11 @@ export const settings: SettingSchemaDesc[] = [
     title: 'Model Name',
     description: 'The model ID to use (e.g., gemini-2.5-flash-lite).',
     enumChoices: [
+      'gemini-2.5-flash-pro',
       'gemini-2.5-flash-lite',
       'gemini-2.5-flash',
+      'gemini-3-flash-preview',
+      'gemini-3-pro-preview',
       'gemma3:27b',
       'gemma2:27b',
     ],
@@ -29,5 +32,12 @@ export const settings: SettingSchemaDesc[] = [
     title: 'NodeBuddy Page Tag',
     description:
       'NodeBuddy chat histories are stored on pages in the graph. Indicate the tag used for these pages.',
+  },
+  {
+    key: 'userPrompt',
+    type: 'string',
+    default: '',
+    title: 'User Prompt',
+    description: 'Add your own scaffold prompt for NodeBuddy.',
   },
 ]
