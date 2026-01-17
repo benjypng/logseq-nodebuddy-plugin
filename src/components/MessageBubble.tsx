@@ -100,20 +100,22 @@ export const MessageBubble = ({ colorScheme, msg }: MessageBubbleProps) => {
               : 'gray.0'
         }
       >
-        <Box pos="absolute" top={6} right={6}>
-          <CopyButton value={content || ''}>
-            {({ copied, copy }) => (
-              <ActionIcon
-                variant="subtle"
-                color={copied ? 'teal' : 'gray'}
-                onClick={copy}
-                size="sm"
-              >
-                {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
-              </ActionIcon>
-            )}
-          </CopyButton>
-        </Box>
+        {content !== 'Thinking...' && content !== '' && (
+          <Box pos="absolute" top={6} right={6}>
+            <CopyButton value={content || ''}>
+              {({ copied, copy }) => (
+                <ActionIcon
+                  variant="subtle"
+                  color={copied ? 'teal' : 'gray'}
+                  onClick={copy}
+                  size="sm"
+                >
+                  {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+                </ActionIcon>
+              )}
+            </CopyButton>
+          </Box>
+        )}
 
         <Box component="div" style={{ wordBreak: 'break-word' }}>
           {content === 'Thinking...' ? (
