@@ -51,7 +51,10 @@ export const NewChat = () => {
         setExistingChats(pagesContainingTags)
       }
     }
-    getExistingChats()
+    logseq.on('ui:visible:changed', getExistingChats)
+    return () => {
+      logseq.off('ui:visible:changed', getExistingChats)
+    }
   }, [page])
 
   const onSubmit: SubmitHandler<NewPageFormValues> = async (data) => {
