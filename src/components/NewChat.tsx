@@ -1,4 +1,4 @@
-import { PageEntity } from '@logseq/libs/dist/LSPlugin'
+import { PageEntity } from "@logseq/libs/dist/LSPlugin";
 import {
   Button,
   Center,
@@ -9,61 +9,64 @@ import {
   Text,
   TextInput,
   Title,
-} from '@mantine/core'
-import { IconMessage, IconPlus } from '@tabler/icons-react'
-import { useEffect, useState } from 'react'
-import { Controller, SubmitHandler, useForm } from 'react-hook-form'
+} from "@mantine/core";
+import { IconMessage, IconPlus } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 
-import { useAutoFocus, useLogseqPage } from '../hooks'
-import { NewPageFormValues } from '../types'
-import { formatChatName, writeHistoryToGraph } from '../utils'
+import { useAutoFocus, useLogseqPage } from "../hooks";
+import { NewPageFormValues } from "../types";
+import { formatChatName, writeHistoryToGraph } from "../utils";
 
 export const NewChat = () => {
-  const { page, setPage } = useLogseqPage()
-  const [existingChats, setExistingChats] = useState<PageEntity[]>()
+  const { page, setPage } = useLogseqPage();
+  const [existingChats, setExistingChats] = useState<PageEntity[]>();
   const {
     control,
     handleSubmit,
     formState: { isSubmitting },
     setFocus,
   } = useForm<NewPageFormValues>({
-    defaultValues: { title: '' },
-  })
+    defaultValues: { title: "" },
+  });
 
-  useAutoFocus(setFocus, 'title')
+  useAutoFocus(setFocus, "title");
 
   useEffect(() => {
     const getExistingChats = async () => {
-      const tagName = logseq.settings?.nodeBuddyTag as string
-      if (!tagName) return
-      const tagPage = await logseq.Editor.getPage(tagName)
-      if (!tagPage) return
-      const tagIdent = tagPage.ident
-      if (!tagIdent) return
+      const tagName = logseq.settings?.nodeBuddyTag as string;
+      if (!tagName) return;
+      const tagPage = await logseq.Editor.getPage(tagName);
+      if (!tagPage) return;
+      const tagIdent = tagPage.ident;
+      if (!tagIdent) return;
 
-      const blocksContainingTags = await logseq.Editor.getTagObjects(tagIdent)
-      if (!blocksContainingTags) return
+      const blocksContainingTags = await logseq.Editor.getTagObjects(tagIdent);
+      if (!blocksContainingTags) return;
       const pagesContainingTags = blocksContainingTags.filter(
         (block) => !block.page,
-      ) as unknown as PageEntity[]
+      ) as unknown as PageEntity[];
 
       if (pagesContainingTags && pagesContainingTags.length > 0) {
-        setExistingChats(pagesContainingTags)
+        setExistingChats(pagesContainingTags);
       }
-    }
-    logseq.on('ui:visible:changed', getExistingChats)
+    };
+    getExistingChats();
+
+    // To handle when Logseq restarts
+    logseq.on("ui:visible:changed", getExistingChats);
     return () => {
-      logseq.off('ui:visible:changed', getExistingChats)
-    }
-  }, [page])
+      logseq.off("ui:visible:changed", getExistingChats);
+    };
+  }, [page]);
 
   const onSubmit: SubmitHandler<NewPageFormValues> = async (data) => {
-    if (!data.title) return
+    if (!data.title) return;
     const page = await writeHistoryToGraph.createPageAndAddTag(
       data.title.trim(),
-    )
-    setPage(page)
-  }
+    );
+    setPage(page);
+  };
 
   return (
     <Center h="100%" bg="body">
@@ -76,12 +79,12 @@ export const NewChat = () => {
             </Text>
           </Stack>
 
-          <form onSubmit={handleSubmit(onSubmit)} style={{ width: '100%' }}>
+          <form onSubmit={handleSubmit(onSubmit)} style={{ width: "100%" }}>
             <Stack gap="sm">
               <Controller
                 name="title"
                 control={control}
-                rules={{ required: 'Title is required' }}
+                rules={{ required: "Title is required" }}
                 render={({ field, fieldState: { error } }) => (
                   <TextInput
                     {...field}
@@ -128,8 +131,8 @@ export const NewChat = () => {
                       styles={{
                         label: {
                           fontWeight: 400,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
                         },
                       }}
                     >
@@ -143,5 +146,5 @@ export const NewChat = () => {
         </Stack>
       </Container>
     </Center>
-  )
-}
+  );
+};
