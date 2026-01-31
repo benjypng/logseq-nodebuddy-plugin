@@ -23,8 +23,8 @@ export const getPromptContext = async (prompt: string) => {
         const zoomedInBlock = await logseq.Editor.getBlock(currPage.uuid, {
           includeChildren: true,
         })
-        if (zoomedInBlock?.children) {
-          blockTree = zoomedInBlock.children as BlockEntity[]
+        if (zoomedInBlock) {
+          blockTree = [zoomedInBlock]
         }
       }
     }
