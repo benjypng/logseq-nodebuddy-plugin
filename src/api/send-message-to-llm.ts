@@ -2,7 +2,7 @@ import { dropWhile } from 'lodash'
 
 import { ChatMessage } from '../types'
 import { getModelNameFromSettings } from '../utils'
-import { handleGemini, handleGemma } from '.'
+import { handleClaude, handleGemini, handleGemma } from '.'
 
 export const sendMessageToLLM = async (messages: ChatMessage[]) => {
   const validMessages = dropWhile(messages, (m) => m.role !== 'user')
@@ -12,6 +12,8 @@ export const sendMessageToLLM = async (messages: ChatMessage[]) => {
 
   if (model.startsWith('gemma')) {
     return await handleGemma(validMessages)
+  } else if (model.startsWith('claude')) {
+    return await handleClaude(validMessages)
   } else {
     return await handleGemini(validMessages)
   }

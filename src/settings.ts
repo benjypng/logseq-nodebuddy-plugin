@@ -9,6 +9,13 @@ export const settings: SettingSchemaDesc[] = [
     description: 'Enter your Google Gemini API Key.',
   },
   {
+    key: 'anthropicApiKey',
+    type: 'string',
+    default: '',
+    title: 'Anthropic API Key',
+    description: 'Enter your Anthropic API Key (for Claude models).',
+  },
+  {
     key: 'model',
     type: 'enum',
     default: 'gemini-2.5-flash',
@@ -22,6 +29,7 @@ export const settings: SettingSchemaDesc[] = [
       'gemini-3-pro-preview',
       'gemma3:27b',
       'gemma2:27b',
+      'claude-3-5-sonnet-20241022',
     ],
     enumPicker: 'select',
   },

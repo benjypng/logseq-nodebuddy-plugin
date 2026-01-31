@@ -6,6 +6,7 @@ export type GoogleModels =
   | 'gemini-2.5-flash'
   | 'gemma3:27b'
   | 'gemma2:27b'
+  | 'claude-3-5-sonnet-20241022'
 
 export interface LogseqPageContextInterface {
   page: PageEntity | null
@@ -60,6 +61,23 @@ export interface GemmaResponse {
     images?: string[] | null
   }
   done: boolean
+}
+
+export interface ClaudeResponse {
+  content: {
+    type: string
+    text: string
+  }[]
+  id: string
+  model: string
+  role: string
+  stop_reason: string | null
+  stop_sequence: string | null
+  type: string
+  usage: {
+    input_tokens: number
+    output_tokens: number
+  }
 }
 
 export interface FormatPromptProps {
