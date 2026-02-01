@@ -26,6 +26,17 @@ export const api = () => {
         console.error('[NodeBuddy] API Error:', error)
         throw error
       })
+  } else if (model.startsWith('qwen')) {
+    return wretch()
+      .url('http://10.10.0.186:11434/v1/chat/completions')
+      .headers({
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer local',
+      })
+      .catcherFallback((error) => {
+        console.error('[NodeBuddy] API Error:', error)
+        throw error
+      })
   } else if (model.startsWith('claude')) {
     return wretch()
       .url('https://api.anthropic.com/v1/messages')

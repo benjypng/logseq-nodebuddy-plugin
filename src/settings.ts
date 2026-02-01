@@ -31,6 +31,7 @@ export const settings: SettingSchemaDesc[] = [
       'gemma2:27b',
       'claude-haiku-4-5-20251001',
       'claude-sonnet-4-5-20250929',
+      'qwen3:8b',
     ],
     enumPicker: 'select',
   },

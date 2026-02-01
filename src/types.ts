@@ -7,6 +7,8 @@ export type GoogleModels =
   | 'gemma3:27b'
   | 'gemma2:27b'
   | 'claude-3-5-sonnet-20241022'
+  | 'claude-haiku-4-5-20251001'
+  | 'qwen3:8b'
 
 export interface LogseqPageContextInterface {
   page: PageEntity | null
@@ -61,6 +63,26 @@ export interface GemmaResponse {
     images?: string[] | null
   }
   done: boolean
+}
+
+export interface OpenAIResponse {
+  id: string
+  object: string
+  created: number
+  model: string
+  choices: {
+    index: number
+    message: {
+      role: string
+      content: string
+    }
+    finish_reason: string
+  }[]
+  usage: {
+    prompt_tokens: number
+    completion_tokens: number
+    total_tokens: number
+  }
 }
 
 export interface ClaudeResponse {
