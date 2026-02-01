@@ -65,7 +65,7 @@ export interface GemmaResponse {
   done: boolean
 }
 
-export interface OpenAIResponse {
+export interface QwenResponse {
   id: string
   object: string
   created: number
