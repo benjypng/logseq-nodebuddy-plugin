@@ -1,10 +1,10 @@
 import { BlockEntity } from '@logseq/libs/dist/LSPlugin'
 import {
-  startOfWeek,
-  endOfWeek,
   eachDayOfInterval,
+  endOfWeek,
   format,
   getWeek,
+  startOfWeek,
 } from 'date-fns'
 
 import { ContextItem } from '../types'
