@@ -25,7 +25,7 @@ export interface NewPageFormValues {
 
 export type MessageRole = 'user' | 'buddy'
 
-export type Source = 'tag' | 'current-page' | 'page-reference'
+export type Source = 'tag' | 'current-page' | 'page-reference' | 'current-week'
 
 export interface ContextItem {
   source: string

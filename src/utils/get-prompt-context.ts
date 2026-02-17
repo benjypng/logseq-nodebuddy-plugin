@@ -1,10 +1,45 @@
 import { BlockEntity } from '@logseq/libs/dist/LSPlugin'
+import {
+  startOfWeek,
+  endOfWeek,
+  eachDayOfInterval,
+  format,
+  getWeek,
+} from 'date-fns'
 
 import { ContextItem } from '../types'
 import { processBlockChildren } from '.'
 
 export const getPromptContext = async (prompt: string) => {
   const contextData: ContextItem[] = []
+
+  /*
+   Handle @current-week
+  */
+  if (prompt.includes('@currentweek')) {
+    const { preferredDateFormat } = await logseq.App.getUserConfigs()
+    const now = new Date()
+    const weekNumber = getWeek(now)
+    const datesInWeek = eachDayOfInterval({
+      start: startOfWeek(now, { weekStartsOn: 1 }),
+      end: endOfWeek(now, { weekStartsOn: 1 }),
+    })
+
+    for (const date of datesInWeek) {
+      const journalPageName = format(date, preferredDateFormat)
+      const blocks = await logseq.Editor.getPageBlocksTree(journalPageName)
+      if (blocks && blocks.length > 0) {
+        for (const block of blocks) {
+          const flattenedContent = processBlockChildren(
+            'current-week',
+            `Week ${weekNumber} - ${journalPageName}`,
+            block,
+          )
+          contextData.push(...flattenedContent)
+        }
+      }
+    }
+  }
 
   /*
    Handle @current page

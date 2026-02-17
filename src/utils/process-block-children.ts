@@ -19,6 +19,9 @@ export const processBlockChildren = (
     case 'page-reference':
       source = `Page Reference: [[${ref}]]`
       break
+    case 'current-week':
+      source = `Current week: ${ref}`
+      break
   }
 
   results.push({
