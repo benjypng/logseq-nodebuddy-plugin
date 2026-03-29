@@ -26,11 +26,13 @@ export const writeHistoryToGraph = {
     return page
   },
   writeMessage: async (pageName: string, msg: ChatMessage) => {
-    const block = await logseq.Editor.appendBlockInPage(
-      pageName,
-      JSON.stringify(msg),
-    )
-    // Wrap chat message in #Code to avoid creating unnecessary backlinks
-    if (block) await logseq.Editor.addBlockTag(block?.uuid, 'code')
+    // Create block first
+    const block = await logseq.Editor.appendBlockInPage(pageName, '')
+    if (block) {
+      // Wrap chat message in #Code to avoid creating unnecessary backlinks
+      await logseq.Editor.addBlockTag(block?.uuid, 'code')
+      // Then append message
+      await logseq.Editor.updateBlock(block.uuid, JSON.stringify(msg))
+    }
   },
 }
