@@ -1,7 +1,6 @@
-import '@mantine/core/styles.css'
 import '@logseq/libs'
+import './styles.css'
 
-import { MantineProvider } from '@mantine/core'
 import { createRoot } from 'react-dom/client'
 
 import { NodeBuddyContainer } from './NodeBuddyContainer'
@@ -32,7 +31,7 @@ const main = async () => {
       height: 100% !important;
       position: relative !important;
       top: auto !important;
-      left: auto !important; 
+      left: auto !important;
       overflow-y: auto !important;
       background: var(--ls-primary-background-color);
       border-left: 1px solid var(--lx-gray-09, #333);
@@ -56,11 +55,7 @@ const main = async () => {
   if (!el) return
   const root = createRoot(el)
 
-  root.render(
-    <MantineProvider>
-      <NodeBuddyContainer />
-    </MantineProvider>,
-  )
+  root.render(<NodeBuddyContainer />)
 
   logseq.App.registerCommandPalette(
     {

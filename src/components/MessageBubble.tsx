@@ -1,139 +1,54 @@
-import {
-  ActionIcon,
-  Anchor,
-  Box,
-  Code,
-  CopyButton,
-  Loader,
-  Paper,
-  Stack,
-  Text,
-  Title,
-} from '@mantine/core'
 import { IconCheck, IconCopy } from '@tabler/icons-react'
+import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
 import { MessageBubbleProps } from '../types'
 
-export const MessageBubble = ({ colorScheme, msg }: MessageBubbleProps) => {
+export const MessageBubble = ({ msg }: MessageBubbleProps) => {
   const { role, content, context } = msg
+  const [copied, setCopied] = useState(false)
 
-  const markdownComponents: any = {
-    p: ({ children }: any) => (
-      <Text component="div" size="sm" mb="xs" style={{ lineHeight: 1.5 }}>
-        {children}
-      </Text>
-    ),
-    code: ({ inline, className, children, ...props }: any) => {
-      const match = /language-(\w+)/.exec(className || '')
-      const isBlock = match || inline === false
-
-      if (!isBlock) {
-        return <Code {...props}>{children}</Code>
-      }
-
-      return (
-        <Code block mb="sm" {...props} style={{ overflowX: 'auto' }}>
-          {children}
-        </Code>
-      )
-    },
-    a: ({ href, children }: any) => (
-      <Anchor href={href} target="_blank" rel="noopener noreferrer" size="sm">
-        {children}
-      </Anchor>
-    ),
-    h1: ({ children }: any) => (
-      <Title order={3} size="h5" mb="xs">
-        {children}
-      </Title>
-    ),
-    h2: ({ children }: any) => (
-      <Title order={4} size="h6" mb="xs">
-        {children}
-      </Title>
-    ),
-    h3: ({ children }: any) => (
-      <Text fw={700} size="sm" mb="xs">
-        {children}
-      </Text>
-    ),
-    ul: ({ children }: any) => (
-      <Box
-        component="ul"
-        pl="md"
-        my="xs"
-        style={{ fontSize: 'var(--mantine-font-size-sm)' }}
-      >
-        {children}
-      </Box>
-    ),
-    ol: ({ children }: any) => (
-      <Box
-        component="ol"
-        pl="md"
-        my="xs"
-        style={{ fontSize: 'var(--mantine-font-size-sm)' }}
-      >
-        {children}
-      </Box>
-    ),
-    li: ({ children }: any) => <li style={{ marginBottom: 4 }}>{children}</li>,
+  const handleCopy = () => {
+    navigator.clipboard.writeText(content || '')
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   return (
-    <Stack gap={4} maw="80%">
-      <Paper
-        p="sm"
-        pr={34}
-        pos="relative"
-        radius="md"
-        withBorder
-        bg={
-          role === 'user'
-            ? colorScheme === 'dark'
-              ? 'blue.9'
-              : 'blue.1'
-            : colorScheme === 'dark'
-              ? 'dark.6'
-              : 'gray.0'
-        }
-      >
-        <Box pos="absolute" top={6} right={6}>
-          <CopyButton value={content || ''}>
-            {({ copied, copy }) => (
-              <ActionIcon
-                variant="subtle"
-                color={copied ? 'teal' : 'gray'}
-                onClick={copy}
-                size="sm"
-              >
-                {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
-              </ActionIcon>
-            )}
-          </CopyButton>
-        </Box>
+    <div className="nb-bubble-wrapper">
+      <div className={`nb-bubble nb-bubble--${role}`}>
+        <button
+          type="button"
+          onClick={handleCopy}
+          className={`nb-bubble__copy-btn ${copied ? 'nb-bubble__copy-btn--copied' : ''}`}
+        >
+          {copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
+        </button>
 
-        <Box component="div" style={{ wordBreak: 'break-word' }}>
+        <div className="nb-markdown">
           {content === 'Thinking...' ? (
-            <Loader type="dots" size="xs" />
+            <div className="nb-thinking">
+              <span>Thinking</span>
+              <span className="nb-thinking__dots">
+                <span className="nb-thinking__dot" />
+                <span className="nb-thinking__dot" />
+                <span className="nb-thinking__dot" />
+              </span>
+            </div>
           ) : (
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              components={markdownComponents}
-            >
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {content}
             </ReactMarkdown>
           )}
-        </Box>
-      </Paper>
+        </div>
+      </div>
 
       {context && (
-        <Text size="xs" c="dimmed" ta="right">
+        <div className="nb-bubble__context">
           Attached {context.length} blocks
-        </Text>
+        </div>
       )}
-    </Stack>
+    </div>
   )
 }

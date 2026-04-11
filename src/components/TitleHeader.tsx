@@ -1,4 +1,3 @@
-import { Button, Code, Group, rem, Stack, Text, Tooltip } from '@mantine/core'
 import { IconFileText, IconPencilPlus } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 
@@ -27,39 +26,30 @@ export const TitleHeader = () => {
   }, [])
 
   return (
-    <Group align="center" justify="space-between" p="sm">
-      <Stack gap={0}>
-        <Text fw={700} size="md">
-          NodeBuddy
-        </Text>
-        <Code>{modelName}</Code>
-      </Stack>
-      <Group gap={2}>
-        <Tooltip label="Go to chat history">
-          <Button
-            leftSection={
-              <IconFileText style={{ width: rem(12), height: rem(12) }} />
-            }
-            size="xs"
-            radius="md"
-            variant="subtle"
-            onClick={goToChatHistory}
-          >
-            {badgeLabel}
-          </Button>
-        </Tooltip>
-        <Tooltip label="Start a new chat">
-          <Button
-            size="xs"
-            radius="md"
-            color="gray"
-            variant="outline"
-            onClick={() => setPage(null)}
-          >
-            <IconPencilPlus style={{ width: rem(12), height: rem(12) }} />
-          </Button>
-        </Tooltip>
-      </Group>
-    </Group>
+    <div className="nb-header">
+      <div className="nb-header__title-group">
+        <span className="nb-header__title">NodeBuddy</span>
+        <code className="nb-header__model">{modelName}</code>
+      </div>
+      <div className="nb-header__actions">
+        <button
+          type="button"
+          title="Go to chat history"
+          onClick={goToChatHistory}
+          className="nb-header__btn"
+        >
+          <IconFileText style={{ width: '12px', height: '12px' }} />
+          {badgeLabel}
+        </button>
+        <button
+          type="button"
+          title="Start a new chat"
+          onClick={() => setPage(null)}
+          className="nb-header__btn nb-header__btn--outlined"
+        >
+          <IconPencilPlus style={{ width: '12px', height: '12px' }} />
+        </button>
+      </div>
+    </div>
   )
 }

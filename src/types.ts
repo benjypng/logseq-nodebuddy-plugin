@@ -109,7 +109,6 @@ export interface FormatPromptProps {
 
 export interface MessageBubbleProps {
   msg: Partial<ChatMessage>
-  colorScheme: string
 }
 
 export interface AvatarProps {

@@ -1,24 +1,26 @@
 import { PageEntity } from '@logseq/libs/dist/LSPlugin'
-import { Stack, useMantineColorScheme } from '@mantine/core'
 import { useEffect, useState } from 'react'
 
 import { ChatBox } from './ChatBox'
 import { NewChat } from './components'
-import { LogseqPageContext } from './hooks'
+import {
+  ColorSchemeContext,
+  type ColorScheme,
+  LogseqPageContext,
+} from './hooks'
 
 export const NodeBuddyContainer = () => {
   const [page, setPage] = useState<PageEntity | null>(null)
-  const { setColorScheme } = useMantineColorScheme()
+  const [colorScheme, setColorScheme] = useState<ColorScheme>('light')
 
   useEffect(() => {
     const cleanup = logseq.App.onThemeModeChanged(({ mode }) => {
-      setColorScheme(mode)
+      setColorScheme(mode as ColorScheme)
     })
     return () => cleanup()
   }, [])
 
   useEffect(() => {
-    // Handle shortcut to toggle UI
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         logseq.toggleMainUI()
@@ -38,11 +40,13 @@ export const NodeBuddyContainer = () => {
   }, [])
 
   return (
-    <Stack h="100vh" w="100%" bg="body" gap="xs">
-      <LogseqPageContext.Provider value={{ page, setPage }}>
-        {!page && <NewChat />}
-        {page && <ChatBox />}
-      </LogseqPageContext.Provider>
-    </Stack>
+    <ColorSchemeContext.Provider value={{ colorScheme, setColorScheme }}>
+      <div className="nb-container" data-theme={colorScheme}>
+        <LogseqPageContext.Provider value={{ page, setPage }}>
+          {!page && <NewChat />}
+          {page && <ChatBox />}
+        </LogseqPageContext.Provider>
+      </div>
+    </ColorSchemeContext.Provider>
   )
 }

@@ -1,5 +1,5 @@
-import { ActionIcon, Group, Textarea } from '@mantine/core'
 import { IconSend } from '@tabler/icons-react'
+import { useCallback, useEffect, useRef } from 'react'
 import { Controller, SubmitHandler, useFormContext } from 'react-hook-form'
 
 import { sendMessageToLLM } from '../api'
@@ -57,28 +57,63 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
         ),
       )
     } catch (e) {
-      logseq.UI.showMsg(`Failed to reach Gemini: ${String(e)}`, 'error') //
+      logseq.UI.showMsg(`Failed to reach Gemini: ${String(e)}`, 'error')
       setMessages((prev) => prev.filter((msg) => msg.id !== buddyId))
     }
   }
 
+  const AutosizeTextarea = ({
+    value,
+    onChange,
+    error,
+    onKeyDown,
+  }: {
+    value: string
+    onChange: (value: string) => void
+    error?: string
+    onKeyDown: (e: React.KeyboardEvent) => void
+  }) => {
+    const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+    const resize = useCallback(() => {
+      const el = textareaRef.current
+      if (!el) return
+      el.style.height = 'auto'
+      el.style.height = `${Math.min(el.scrollHeight, 120)}px`
+    }, [])
+
+    useEffect(() => {
+      resize()
+    }, [value, resize])
+
+    return (
+      <div className="nb-input-wrapper">
+        {error && <span className="nb-input-error">{error}</span>}
+        <textarea
+          ref={textareaRef}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={onKeyDown}
+          placeholder="Ask NodeBuddy..."
+          rows={1}
+          className={`nb-textarea ${error ? 'nb-textarea--error' : ''}`}
+        />
+      </div>
+    )
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Group gap="sm" align="flex-end" mt="xs" p="sm">
+      <div className="nb-input-bar">
         <Controller
           name="prompt"
           control={control}
           rules={{ required: 'Ask me something!' }}
           render={({ field, fieldState: { error } }) => (
-            <Textarea
-              {...field}
-              placeholder="Ask NodeBuddy..."
-              autosize
-              minRows={1}
-              maxRows={4}
-              flex={1}
+            <AutosizeTextarea
+              value={field.value}
+              onChange={field.onChange}
               error={error?.message}
-              inputWrapperOrder={['label', 'description', 'error', 'input']}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault()
@@ -88,16 +123,10 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
             />
           )}
         />
-        <ActionIcon
-          type="submit"
-          variant="filled"
-          size="input-sm"
-          aria-label="Send message"
-          mb={0}
-        >
-          <IconSend />
-        </ActionIcon>
-      </Group>
+        <button type="submit" aria-label="Send message" className="nb-send-btn">
+          <IconSend size={16} />
+        </button>
+      </div>
     </form>
   )
 }

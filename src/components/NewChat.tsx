@@ -1,15 +1,4 @@
 import { PageEntity } from '@logseq/libs/dist/LSPlugin'
-import {
-  Button,
-  Center,
-  Container,
-  Divider,
-  ScrollArea,
-  Stack,
-  Text,
-  TextInput,
-  Title,
-} from '@mantine/core'
 import { IconMessage, IconPlus } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
@@ -55,7 +44,6 @@ export const NewChat = () => {
     }
     getExistingChats()
 
-    // Handle cold starts
     logseq.on('ui:visible:changed', getExistingChats)
     return () => {
       logseq.off('ui:visible:changed', getExistingChats)
@@ -71,82 +59,85 @@ export const NewChat = () => {
   }
 
   return (
-    <Center h="100%" bg="body">
-      <Container size="xs">
-        <Stack align="center" gap="lg">
-          <Stack gap={0} align="center">
-            <Title order={2}>New Session</Title>
-            <Text c="dimmed" size="sm">
+    <div className="nb-new-chat">
+      <div className="nb-new-chat__inner">
+        <div className="nb-new-chat__content">
+          <div className="nb-new-chat__heading">
+            <h2 className="nb-new-chat__title">New Session</h2>
+            <p className="nb-new-chat__subtitle">
               Start by creating a page to store this conversation history.
-            </Text>
-          </Stack>
+            </p>
+          </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} style={{ width: '100%' }}>
-            <Stack gap="sm">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="nb-new-chat__form"
+          >
+            <div className="nb-new-chat__form-fields">
               <Controller
                 name="title"
                 control={control}
                 rules={{ required: 'Title is required' }}
                 render={({ field, fieldState: { error } }) => (
-                  <TextInput
-                    {...field}
-                    placeholder="e.g. Quantum Physics Research"
-                    size="xs"
-                    radius="md"
-                    error={error?.message}
-                    disabled={isSubmitting}
-                    autoFocus
-                  />
+                  <div>
+                    {error && (
+                      <span className="nb-new-chat__error">
+                        {error.message}
+                      </span>
+                    )}
+                    <input
+                      {...field}
+                      type="text"
+                      placeholder="e.g. Quantum Physics Research"
+                      disabled={isSubmitting}
+                      autoFocus
+                      className={`nb-new-chat__input ${error ? 'nb-new-chat__input--error' : ''}`}
+                    />
+                  </div>
                 )}
               />
-              <Button
+              <button
                 type="submit"
-                size="xs"
-                radius="md"
-                fullWidth
-                loading={isSubmitting}
-                leftSection={<IconPlus size={18} />}
+                disabled={isSubmitting}
+                className="nb-new-chat__submit"
               >
-                Start Chat
-              </Button>
-            </Stack>
+                <IconPlus size={16} />
+                {isSubmitting ? 'Creating...' : 'Start Chat'}
+              </button>
+            </div>
           </form>
 
           {existingChats && existingChats.length > 0 && (
             <>
-              <Divider
-                label="or resume session"
-                labelPosition="center"
-                w="100%"
-              />
-              <ScrollArea h={200} w="100%" type="auto" offsetScrollbars>
-                <Stack gap={4}>
+              <div className="nb-divider">
+                <div className="nb-divider__line" />
+                <span className="nb-divider__text">or resume session</span>
+                <div className="nb-divider__line" />
+              </div>
+              <div className="nb-chat-list nb-scrollable">
+                <div className="nb-chat-list__items">
                   {existingChats.map((chat) => (
-                    <Button
+                    <button
                       key={chat.id}
-                      variant="subtle"
-                      color="gray"
-                      fullWidth
-                      justify="flex-start"
-                      leftSection={<IconMessage size={14} />}
+                      type="button"
                       onClick={() => setPage(chat)}
-                      styles={{
-                        label: {
-                          fontWeight: 400,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                        },
-                      }}
+                      className="nb-chat-list__item"
                     >
-                      {formatChatName(chat.name)}
-                    </Button>
+                      <IconMessage
+                        size={14}
+                        className="nb-chat-list__item-icon"
+                      />
+                      <span className="nb-chat-list__item-name">
+                        {formatChatName(chat.name)}
+                      </span>
+                    </button>
                   ))}
-                </Stack>
-              </ScrollArea>
+                </div>
+              </div>
             </>
           )}
-        </Stack>
-      </Container>
-    </Center>
+        </div>
+      </div>
+    </div>
   )
 }

@@ -1,4 +1,3 @@
-import { Flex, ScrollArea, Stack, useMantineColorScheme } from '@mantine/core'
 import { useEffect, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
@@ -17,8 +16,6 @@ export const ChatBox = () => {
   const formMethods = useForm<ChatFormValues>({
     defaultValues: { prompt: '' },
   })
-  const { colorScheme, setColorScheme } = useMantineColorScheme()
-
   useEffect(() => {
     const getExistingMessages = async () => {
       if (!page) return
@@ -48,14 +45,6 @@ export const ChatBox = () => {
   }, [page])
 
   useEffect(() => {
-    const cleanup = logseq.App.onThemeModeChanged(({ mode }) => {
-      setColorScheme(mode)
-    })
-    return () => cleanup()
-  }, [])
-
-  useEffect(() => {
-    // Handle shortcut to toggle UI
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         logseq.toggleMainUI()
@@ -85,24 +74,20 @@ export const ChatBox = () => {
     <FormProvider {...formMethods}>
       <TitleHeader />
 
-      <ScrollArea flex={1} p="md" viewportRef={viewport}>
-        <Stack gap="md">
+      <div ref={viewport} className="nb-chat-viewport nb-scrollable">
+        <div className="nb-chat-messages">
           {messages.map((msg, index) => (
-            <Flex
+            <div
               key={index}
-              justify={msg.role === 'user' ? 'flex-end' : 'flex-start'}
-              align="flex-start"
-              gap="xs"
+              className={`nb-message-row nb-message-row--${msg.role}`}
             >
               {msg.role === 'buddy' && <Avatar role={'buddy'} />}
-
-              <MessageBubble msg={msg} colorScheme={colorScheme} />
-
+              <MessageBubble msg={msg} />
               {msg.role === 'user' && <Avatar role={'user'} />}
-            </Flex>
+            </div>
           ))}
-        </Stack>
-      </ScrollArea>
+        </div>
+      </div>
 
       <UserInput messages={messages} setMessages={setMessages} />
     </FormProvider>
