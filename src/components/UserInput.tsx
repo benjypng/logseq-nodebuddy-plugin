@@ -57,7 +57,7 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
         ),
       )
     } catch (e) {
-      logseq.UI.showMsg(`Failed to reach Gemini: ${String(e)}`, 'error')
+      logseq.UI.showMsg(`Failed to reach model: ${String(e)}`, 'error')
       setMessages((prev) => prev.filter((msg) => msg.id !== buddyId))
     }
   }

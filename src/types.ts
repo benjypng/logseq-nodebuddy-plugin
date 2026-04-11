@@ -1,9 +1,10 @@
 import { PageEntity } from '@logseq/libs/dist/LSPlugin'
 import { Dispatch, SetStateAction } from 'react'
 
-export type GoogleModels =
+export type NodeBuddyModels =
   | 'gemini-2.5-flash-lite'
   | 'gemini-2.5-flash'
+  | 'gemma4:latest'
   | 'gemma3:27b'
   | 'gemma2:27b'
   | 'claude-3-5-sonnet-20241022'
@@ -65,7 +66,7 @@ export interface GemmaResponse {
   done: boolean
 }
 
-export interface QwenResponse {
+export interface OllamaResponse {
   id: string
   object: string
   created: number

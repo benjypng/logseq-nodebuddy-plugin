@@ -1,5 +1,5 @@
-import { GoogleModels } from '../types'
+import { NodeBuddyModels } from '../types'
 
-export const getModelNameFromSettings = (): GoogleModels => {
-  return logseq.settings?.model as GoogleModels
+export const getModelNameFromSettings = (): NodeBuddyModels => {
+  return logseq.settings?.model as NodeBuddyModels
 }

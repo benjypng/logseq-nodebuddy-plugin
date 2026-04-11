@@ -69,10 +69,7 @@ export const NewChat = () => {
             </p>
           </div>
 
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="nb-new-chat__form"
-          >
+          <form onSubmit={handleSubmit(onSubmit)} className="nb-new-chat__form">
             <div className="nb-new-chat__form-fields">
               <Controller
                 name="title"

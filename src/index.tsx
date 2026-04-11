@@ -26,7 +26,6 @@ const main = async () => {
     }
 
     div#logseq-nodebuddy-plugin_lsp_main {
-      width: 400px !important;
       flex-shrink: 0 !important;
       height: 100% !important;
       position: relative !important;
@@ -42,13 +41,19 @@ const main = async () => {
       display: none !important;
     }`)
 
+  const initialWidth = (logseq.settings?.sidebarWidth as number) || 400
+  const wrapper = parent.document.getElementById(
+    'logseq-nodebuddy-plugin_lsp_main',
+  )
+  if (wrapper) wrapper.style.width = `${initialWidth}px`
+
   logseq.setMainUIInlineStyle({
     position: 'fixed',
     zIndex: 11,
     top: 0,
     left: 0,
     right: 'auto',
-    width: '20rem',
+    width: `${initialWidth}px`,
   })
 
   const el = document.getElementById('app')

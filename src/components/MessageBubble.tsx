@@ -37,9 +37,7 @@ export const MessageBubble = ({ msg }: MessageBubbleProps) => {
               </span>
             </div>
           ) : (
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {content}
-            </ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
           )}
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { SCAFFOLD_PROMPT } from '../constants'
-import { ChatMessage, QwenResponse } from '../types'
+import { ChatMessage, OllamaResponse } from '../types'
 import { formatPromptWithContext, getModelNameFromSettings } from '../utils'
 import { api } from '.'
 
@@ -20,7 +20,7 @@ export const handleQwen = async (messages: ChatMessage[]) => {
         ],
         stream: false,
       })
-      .json<QwenResponse>()
+      .json<OllamaResponse>()
     return response.choices?.[0]?.message?.content || ''
   } catch (error) {
     console.error('[NodeBuddy] Qwen Error:', error)

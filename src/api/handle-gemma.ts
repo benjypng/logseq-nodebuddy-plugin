@@ -1,4 +1,4 @@
-import { ChatMessage, GemmaResponse } from '../types'
+import { ChatMessage, OllamaResponse } from '../types'
 import { formatPromptWithContext, getModelNameFromSettings } from '../utils'
 import { api } from '.'
 
@@ -16,8 +16,8 @@ export const handleGemma = async (messages: ChatMessage[]) => {
         })),
         stream: false,
       })
-      .json<GemmaResponse>()
-    return response.message.content
+      .json<OllamaResponse>()
+    return response.choices?.[0]?.message?.content || ''
   } catch (error) {
     console.error('[NodeBuddy] Local Gemma Error:', error)
     if (error instanceof Error && error.message.includes('Failed to fetch')) {

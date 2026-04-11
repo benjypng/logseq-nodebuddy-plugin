@@ -1,17 +1,39 @@
 import { PageEntity } from '@logseq/libs/dist/LSPlugin'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { ChatBox } from './ChatBox'
 import { NewChat } from './components'
 import {
-  ColorSchemeContext,
   type ColorScheme,
+  ColorSchemeContext,
   LogseqPageContext,
 } from './hooks'
+
+const MIN_WIDTH = 280
+const MAX_WIDTH = 700
+
+const setSidebarWidth = (width: number) => {
+  const clamped = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, width))
+  const wrapper = parent.document.getElementById(
+    'logseq-nodebuddy-plugin_lsp_main',
+  )
+  if (wrapper) wrapper.style.width = `${clamped}px`
+  logseq.setMainUIInlineStyle({
+    position: 'fixed',
+    zIndex: 11,
+    top: 0,
+    left: 0,
+    right: 'auto',
+    width: `${clamped}px`,
+  })
+  return clamped
+}
 
 export const NodeBuddyContainer = () => {
   const [page, setPage] = useState<PageEntity | null>(null)
   const [colorScheme, setColorScheme] = useState<ColorScheme>('light')
+  const [isDragging, setIsDragging] = useState(false)
+  const dragRef = useRef({ startScreenX: 0, startWidth: 0 })
 
   useEffect(() => {
     const cleanup = logseq.App.onThemeModeChanged(({ mode }) => {
@@ -39,9 +61,44 @@ export const NodeBuddyContainer = () => {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
 
+  const handleResizeStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    const currentWidth =
+      (logseq.settings?.sidebarWidth as number) || 400
+    dragRef.current = { startScreenX: e.screenX, startWidth: currentWidth }
+    setIsDragging(true)
+
+    const onMouseMove = (e: MouseEvent) => {
+      const { startScreenX, startWidth } = dragRef.current
+      const delta = startScreenX - e.screenX
+      setSidebarWidth(startWidth + delta)
+    }
+
+    const onMouseUp = (e: MouseEvent) => {
+      parent.document.removeEventListener('mousemove', onMouseMove)
+      parent.document.removeEventListener('mouseup', onMouseUp)
+      setIsDragging(false)
+
+      const { startScreenX, startWidth } = dragRef.current
+      const delta = startScreenX - e.screenX
+      const finalWidth = Math.max(
+        MIN_WIDTH,
+        Math.min(MAX_WIDTH, startWidth + delta),
+      )
+      logseq.updateSettings({ sidebarWidth: finalWidth })
+    }
+
+    parent.document.addEventListener('mousemove', onMouseMove)
+    parent.document.addEventListener('mouseup', onMouseUp)
+  }, [])
+
   return (
     <ColorSchemeContext.Provider value={{ colorScheme, setColorScheme }}>
       <div className="nb-container" data-theme={colorScheme}>
+        <div
+          className={`nb-resize-handle ${isDragging ? 'nb-resize-handle--active' : ''}`}
+          onMouseDown={handleResizeStart}
+        />
         <LogseqPageContext.Provider value={{ page, setPage }}>
           {!page && <NewChat />}
           {page && <ChatBox />}

@@ -27,6 +27,7 @@ export const settings: SettingSchemaDesc[] = [
       'gemini-2.5-flash',
       'gemini-3-flash-preview',
       'gemini-3-pro-preview',
+      'gemma4:latest',
       'gemma3:27b',
       'gemma2:27b',
       'claude-haiku-4-5-20251001',
@@ -49,5 +50,12 @@ export const settings: SettingSchemaDesc[] = [
     default: '',
     title: 'User Prompt',
     description: 'Add your own scaffold prompt for NodeBuddy.',
+  },
+  {
+    key: 'sidebarWidth',
+    type: 'number',
+    default: 400,
+    title: 'Sidebar Width',
+    description: 'Width of the NodeBuddy sidebar in pixels. You can also drag the left edge to resize.',
   },
 ]

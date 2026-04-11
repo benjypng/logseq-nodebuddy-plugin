@@ -5,7 +5,6 @@ import {
   getAnthropicApiKeyFromSettings,
   getApiKeyFromSettings,
   getGeminiUrl,
-  getLocalUrl,
 } from '.'
 
 export const api = () => {
@@ -13,7 +12,7 @@ export const api = () => {
 
   if (model.startsWith('gemma')) {
     return wretch()
-      .url(getLocalUrl())
+      .url('http://10.10.0.186:11434/v1/chat/completions')
       .headers({
         'Content-Type': 'application/json',
       })
