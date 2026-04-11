@@ -63,8 +63,7 @@ export const NodeBuddyContainer = () => {
 
   const handleResizeStart = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
-    const currentWidth =
-      (logseq.settings?.sidebarWidth as number) || 400
+    const currentWidth = (logseq.settings?.sidebarWidth as number) || 400
     dragRef.current = { startScreenX: e.screenX, startWidth: currentWidth }
     setIsDragging(true)
 

@@ -56,6 +56,7 @@ export const settings: SettingSchemaDesc[] = [
     type: 'number',
     default: 400,
     title: 'Sidebar Width',
-    description: 'Width of the NodeBuddy sidebar in pixels. You can also drag the left edge to resize.',
+    description:
+      'Width of the NodeBuddy sidebar in pixels. You can also drag the left edge to resize.',
   },
 ]
