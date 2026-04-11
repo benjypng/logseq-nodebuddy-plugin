@@ -6,6 +6,7 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 import { useAutoFocus, useLogseqPage } from '../hooks'
 import { NewPageFormValues } from '../types'
 import { formatChatName, writeHistoryToGraph } from '../utils'
+import { format } from 'date-fns'
 
 export const NewChat = () => {
   const { page, setPage } = useLogseqPage()
@@ -51,10 +52,13 @@ export const NewChat = () => {
   }, [page])
 
   const onSubmit: SubmitHandler<NewPageFormValues> = async (data) => {
-    if (!data.title) return
-    const page = await writeHistoryToGraph.createPageAndAddTag(
-      data.title.trim(),
-    )
+    let page
+    if (data.title) {
+      page = await writeHistoryToGraph.createPageAndAddTag(data.title.trim())
+    } else {
+      const now = format(new Date(), 'yyyy-MM-dd@HH:mm:ss')
+      page = await writeHistoryToGraph.createPageAndAddTag(now)
+    }
     setPage(page)
   }
 
@@ -74,7 +78,6 @@ export const NewChat = () => {
               <Controller
                 name="title"
                 control={control}
-                rules={{ required: 'Title is required' }}
                 render={({ field, fieldState: { error } }) => (
                   <div>
                     {error && (
