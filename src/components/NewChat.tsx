@@ -1,12 +1,12 @@
 import { PageEntity } from '@logseq/libs/dist/LSPlugin'
 import { IconMessage, IconPlus } from '@tabler/icons-react'
+import { format } from 'date-fns'
 import { useEffect, useState } from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
 import { useAutoFocus, useLogseqPage } from '../hooks'
 import { NewPageFormValues } from '../types'
 import { formatChatName, writeHistoryToGraph } from '../utils'
-import { format } from 'date-fns'
 
 export const NewChat = () => {
   const { page, setPage } = useLogseqPage()
