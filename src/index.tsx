@@ -47,15 +47,6 @@ const main = async () => {
   )
   if (wrapper) wrapper.style.width = `${initialWidth}px`
 
-  logseq.setMainUIInlineStyle({
-    position: 'fixed',
-    zIndex: 11,
-    top: 0,
-    left: 0,
-    right: 'auto',
-    width: `${initialWidth}px`,
-  })
-
   const el = document.getElementById('app')
   if (!el) return
   const root = createRoot(el)

@@ -55,9 +55,17 @@ export const NodeBuddyContainer = () => {
 
   const handleResizeStart = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
-    const currentWidth = (logseq.settings?.sidebarWidth as number) || 400
+    const wrapper = parent.document.getElementById(
+      'logseq-nodebuddy-plugin_lsp_main',
+    )
+    const currentWidth = wrapper?.offsetWidth || 400
     dragRef.current = { startScreenX: e.screenX, startWidth: currentWidth }
     setIsDragging(true)
+
+    // Disable pointer events on the iframe so the parent document
+    // receives all mouse events during drag
+    const iframe = wrapper?.querySelector('iframe') as HTMLIFrameElement | null
+    if (iframe) iframe.style.pointerEvents = 'none'
 
     const onMouseMove = (e: MouseEvent) => {
       const { startScreenX, startWidth } = dragRef.current
@@ -65,9 +73,16 @@ export const NodeBuddyContainer = () => {
       setSidebarWidth(startWidth + delta)
     }
 
-    const onMouseUp = (e: MouseEvent) => {
+    const cleanup = () => {
       parent.document.removeEventListener('mousemove', onMouseMove)
       parent.document.removeEventListener('mouseup', onMouseUp)
+      document.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('mouseup', onMouseUp)
+      if (iframe) iframe.style.pointerEvents = ''
+    }
+
+    const onMouseUp = (e: MouseEvent) => {
+      cleanup()
       setIsDragging(false)
 
       const { startScreenX, startWidth } = dragRef.current
@@ -81,6 +96,8 @@ export const NodeBuddyContainer = () => {
 
     parent.document.addEventListener('mousemove', onMouseMove)
     parent.document.addEventListener('mouseup', onMouseUp)
+    document.addEventListener('mousemove', onMouseMove)
+    document.addEventListener('mouseup', onMouseUp)
   }, [])
 
   return (

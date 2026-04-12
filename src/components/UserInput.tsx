@@ -7,6 +7,46 @@ import { useAutoFocus, useLogseqPage } from '../hooks'
 import { ChatFormValues, ChatMessage, UserInputProps } from '../types'
 import { getPromptContext, writeHistoryToGraph } from '../utils'
 
+const AutosizeTextarea = ({
+  value,
+  onChange,
+  error,
+  onKeyDown,
+}: {
+  value: string
+  onChange: (value: string) => void
+  error?: string
+  onKeyDown: (e: React.KeyboardEvent) => void
+}) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  const resize = useCallback(() => {
+    const el = textareaRef.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = `${Math.min(el.scrollHeight, 120)}px`
+  }, [])
+
+  useEffect(() => {
+    resize()
+  }, [value, resize])
+
+  return (
+    <div className="nb-input-wrapper">
+      {error && <span className="nb-input-error">{error}</span>}
+      <textarea
+        ref={textareaRef}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={onKeyDown}
+        placeholder="Ask NodeBuddy..."
+        rows={1}
+        className={`nb-textarea ${error ? 'nb-textarea--error' : ''}`}
+      />
+    </div>
+  )
+}
+
 export const UserInput = ({ messages, setMessages }: UserInputProps) => {
   const { page } = useLogseqPage()
   if (!page) return
@@ -60,46 +100,6 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
       logseq.UI.showMsg(`Failed to reach model: ${String(e)}`, 'error')
       setMessages((prev) => prev.filter((msg) => msg.id !== buddyId))
     }
-  }
-
-  const AutosizeTextarea = ({
-    value,
-    onChange,
-    error,
-    onKeyDown,
-  }: {
-    value: string
-    onChange: (value: string) => void
-    error?: string
-    onKeyDown: (e: React.KeyboardEvent) => void
-  }) => {
-    const textareaRef = useRef<HTMLTextAreaElement>(null)
-
-    const resize = useCallback(() => {
-      const el = textareaRef.current
-      if (!el) return
-      el.style.height = 'auto'
-      el.style.height = `${Math.min(el.scrollHeight, 120)}px`
-    }, [])
-
-    useEffect(() => {
-      resize()
-    }, [value, resize])
-
-    return (
-      <div className="nb-input-wrapper">
-        {error && <span className="nb-input-error">{error}</span>}
-        <textarea
-          ref={textareaRef}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyDown={onKeyDown}
-          placeholder="Ask NodeBuddy..."
-          rows={1}
-          className={`nb-textarea ${error ? 'nb-textarea--error' : ''}`}
-        />
-      </div>
-    )
   }
 
   return (
