@@ -526,6 +526,7 @@
 
 .nb-input-wrapper {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
 }
@@ -538,9 +539,9 @@
 }
 
 .nb-textarea {
-  flex: 1;
+  width: 100%;
   resize: none;
-  overflow: auto;
+  overflow-y: hidden;
   padding: 8px 12px;
   border-radius: var(--nb-radius-md);
   border: 1px solid var(--nb-border-input);
@@ -550,6 +551,7 @@
   font-family: inherit;
   line-height: 1.55;
   outline: none;
+  box-sizing: border-box;
   transition:
     border-color var(--nb-transition),
     box-shadow var(--nb-transition);
@@ -579,11 +581,12 @@
   width: 36px;
   height: 36px;
   border: none;
-  border-radius: var(--nb-radius-md);
+  border-radius: 50%;
   background-color: var(--nb-accent);
   color: #fff;
   cursor: pointer;
   flex-shrink: 0;
+  align-self: flex-end;
   transition:
     background-color var(--nb-transition),
     transform var(--nb-transition),

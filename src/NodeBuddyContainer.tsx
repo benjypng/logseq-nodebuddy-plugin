@@ -18,14 +18,6 @@ const setSidebarWidth = (width: number) => {
     'logseq-nodebuddy-plugin_lsp_main',
   )
   if (wrapper) wrapper.style.width = `${clamped}px`
-  logseq.setMainUIInlineStyle({
-    position: 'fixed',
-    zIndex: 11,
-    top: 0,
-    left: 0,
-    right: 'auto',
-    width: `${clamped}px`,
-  })
   return clamped
 }
 
