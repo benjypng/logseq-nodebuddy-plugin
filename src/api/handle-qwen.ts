@@ -1,4 +1,4 @@
-import { SCAFFOLD_PROMPT } from '../constants'
+import { getScaffoldPrompt } from '../constants'
 import { ChatMessage, OllamaResponse } from '../types'
 import { formatPromptWithContext, getModelNameFromSettings } from '../utils'
 import { api } from '.'
@@ -9,7 +9,7 @@ export const handleQwen = async (messages: ChatMessage[]) => {
       .post({
         model: getModelNameFromSettings(),
         messages: [
-          { role: 'system', content: SCAFFOLD_PROMPT },
+          { role: 'system', content: getScaffoldPrompt() },
           ...messages.map((msg) => ({
             role: msg.role === 'buddy' ? 'assistant' : 'user',
             content: formatPromptWithContext({

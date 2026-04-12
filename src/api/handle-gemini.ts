@@ -1,6 +1,6 @@
 import { dropWhile } from 'lodash'
 
-import { SCAFFOLD_PROMPT } from '../constants'
+import { getScaffoldPrompt } from '../constants'
 import { ChatMessage, GeminiResponse } from '../types'
 import { formatPromptWithContext } from '../utils'
 import { api } from '.'
@@ -25,7 +25,7 @@ export const handleGemini = async (messages: ChatMessage[]) => {
   })
   const response = await api()
     .post({
-      systemInstruction: { parts: [{ text: SCAFFOLD_PROMPT }] },
+      systemInstruction: { parts: [{ text: getScaffoldPrompt() }] },
       contents: contents,
       generationConfig: {
         temperature: 0.7,

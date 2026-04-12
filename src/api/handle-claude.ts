@@ -1,6 +1,6 @@
 import { dropWhile } from 'lodash'
 
-import { SCAFFOLD_PROMPT } from '../constants'
+import { getScaffoldPrompt } from '../constants'
 import { ChatMessage, ClaudeResponse } from '../types'
 import { formatPromptWithContext, getModelNameFromSettings } from '../utils'
 import { api } from '.'
@@ -24,7 +24,7 @@ export const handleClaude = async (messages: ChatMessage[]) => {
     .post({
       model: getModelNameFromSettings(),
       max_tokens: 4096,
-      system: SCAFFOLD_PROMPT,
+      system: getScaffoldPrompt(),
       messages: formattedMessages,
     })
     .json<ClaudeResponse>()
