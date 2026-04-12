@@ -1,3 +1,3 @@
-export const getApiKeyFromSettings = () => {
-  return (logseq.settings?.apiKey as string).trim() ?? ''
+export const getGeminiApiKeyFromSettings = () => {
+  return (logseq.settings?.geminiApiKey as string).trim() ?? ''
 }

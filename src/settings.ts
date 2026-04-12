@@ -2,7 +2,7 @@ import { SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user'
 
 export const settings: SettingSchemaDesc[] = [
   {
-    key: 'apiKey',
+    key: 'geminiApiKey',
     type: 'string',
     default: '',
     title: 'Gemini API Key',
@@ -14,6 +14,13 @@ export const settings: SettingSchemaDesc[] = [
     default: '',
     title: 'Anthropic API Key',
     description: 'Enter your Anthropic API Key (for Claude models).',
+  },
+  {
+    key: 'localEndpoint',
+    type: 'string',
+    default: 'http://localhost:1234/v1/chat/completions',
+    title: 'Local Model Endpoint',
+    description: 'Endpoint of local models such as Qwen or Gemma.',
   },
   {
     key: 'model',

@@ -3,8 +3,9 @@ import wretch from 'wretch'
 import { getModelNameFromSettings } from '../utils'
 import {
   getAnthropicApiKeyFromSettings,
-  getApiKeyFromSettings,
+  getGeminiApiKeyFromSettings,
   getGeminiUrl,
+  getLocalEndpointFromSettings,
 } from '.'
 
 export const api = () => {
@@ -12,7 +13,7 @@ export const api = () => {
 
   if (model.startsWith('gemma')) {
     return wretch()
-      .url('http://10.10.0.186:11434/v1/chat/completions')
+      .url(getLocalEndpointFromSettings())
       .headers({
         'Content-Type': 'application/json',
       })
@@ -27,7 +28,7 @@ export const api = () => {
       })
   } else if (model.startsWith('qwen')) {
     return wretch()
-      .url('http://10.10.0.186:11434/v1/chat/completions')
+      .url(getLocalEndpointFromSettings())
       .headers({
         'Content-Type': 'application/json',
         Authorization: 'Bearer local',
@@ -54,7 +55,7 @@ export const api = () => {
       .url(getGeminiUrl())
       .headers({
         'Content-Type': 'application/json',
-        'x-goog-api-key': getApiKeyFromSettings(),
+        'x-goog-api-key': getGeminiApiKeyFromSettings(),
       })
       .catcherFallback((error) => {
         console.error('[NodeBuddy] API Error:', error)
