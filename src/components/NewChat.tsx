@@ -1,26 +1,22 @@
 import { PageEntity } from '@logseq/libs/dist/LSPlugin'
-import { IconMessage, IconPlus } from '@tabler/icons-react'
+import { IconMessage, IconPencil, IconPlus } from '@tabler/icons-react'
 import { format } from 'date-fns'
 import { useEffect, useState } from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
-import { useAutoFocus, useLogseqPage } from '../hooks'
+import { useLogseqPage } from '../hooks'
 import { NewPageFormValues } from '../types'
 import { formatChatName, writeHistoryToGraph } from '../utils'
 
 export const NewChat = () => {
-  const { page, setPage } = useLogseqPage()
+  const { setPage } = useLogseqPage()
   const [existingChats, setExistingChats] = useState<PageEntity[]>()
-  const {
-    control,
-    handleSubmit,
-    formState: { isSubmitting },
-    setFocus,
-  } = useForm<NewPageFormValues>({
+  const [namingMode, setNamingMode] = useState(false)
+  const [creating, setCreating] = useState(false)
+
+  const { control, handleSubmit, setFocus } = useForm<NewPageFormValues>({
     defaultValues: { title: '' },
   })
-
-  useAutoFocus(setFocus, 'title')
 
   useEffect(() => {
     const getExistingChats = async () => {
@@ -37,11 +33,9 @@ export const NewChat = () => {
         (block) => !block.page,
       ) as unknown as PageEntity[]
 
-      if (pagesContainingTags && pagesContainingTags.length > 0) {
-        setExistingChats(
-          pagesContainingTags.sort((a, b) => b.createdAt - a.createdAt),
-        )
-      }
+      setExistingChats(
+        pagesContainingTags.sort((a, b) => b.createdAt - a.createdAt),
+      )
     }
     getExistingChats()
 
@@ -49,17 +43,34 @@ export const NewChat = () => {
     return () => {
       logseq.off('ui:visible:changed', getExistingChats)
     }
-  }, [page])
+  }, [])
 
-  const onSubmit: SubmitHandler<NewPageFormValues> = async (data) => {
-    let page
-    if (data.title) {
-      page = await writeHistoryToGraph.createPageAndAddTag(data.title.trim())
-    } else {
-      const now = format(new Date(), 'yyyy-MM-dd@HH:mm:ss')
-      page = await writeHistoryToGraph.createPageAndAddTag(now)
+  useEffect(() => {
+    if (namingMode) setFocus('title')
+  }, [namingMode, setFocus])
+
+  const startAutoNamedChat = async () => {
+    if (creating) return
+    setCreating(true)
+    try {
+      const now = format(new Date(), 'yyyy-MM-dd@HH:mm')
+      const page = await writeHistoryToGraph.createPageAndAddTag(now)
+      setPage(page)
+    } finally {
+      setCreating(false)
     }
-    setPage(page)
+  }
+
+  const onSubmitNamed: SubmitHandler<NewPageFormValues> = async (data) => {
+    const title = data.title.trim()
+    if (!title) return
+    setCreating(true)
+    try {
+      const page = await writeHistoryToGraph.createPageAndAddTag(title)
+      setPage(page)
+    } finally {
+      setCreating(false)
+    }
   }
 
   return (
@@ -67,51 +78,91 @@ export const NewChat = () => {
       <div className="nb-new-chat__inner">
         <div className="nb-new-chat__content">
           <div className="nb-new-chat__heading">
-            <h2 className="nb-new-chat__title">New Session</h2>
+            <h2 className="nb-new-chat__title">NodeBuddy</h2>
             <p className="nb-new-chat__subtitle">
-              Start by creating a page to store this conversation history.
+              Start a new chat or resume an existing one.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="nb-new-chat__form">
-            <div className="nb-new-chat__form-fields">
-              <Controller
-                name="title"
-                control={control}
-                render={({ field, fieldState: { error } }) => (
-                  <div>
-                    {error && (
-                      <span className="nb-new-chat__error">
-                        {error.message}
-                      </span>
-                    )}
-                    <input
-                      {...field}
-                      type="text"
-                      placeholder="e.g. Quantum Physics Research"
-                      disabled={isSubmitting}
-                      autoFocus
-                      className={`nb-new-chat__input ${error ? 'nb-new-chat__input--error' : ''}`}
-                    />
-                  </div>
-                )}
-              />
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="nb-new-chat__submit"
+          <div className="nb-new-chat__actions">
+            {!namingMode ? (
+              <>
+                <button
+                  type="button"
+                  onClick={startAutoNamedChat}
+                  disabled={creating}
+                  className="nb-new-chat__submit"
+                >
+                  <IconPlus size={16} />
+                  {creating ? 'Creating...' : 'Start new chat'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setNamingMode(true)}
+                  className="nb-new-chat__link-btn"
+                >
+                  <IconPencil size={12} />
+                  Name it yourself
+                </button>
+              </>
+            ) : (
+              <form
+                onSubmit={handleSubmit(onSubmitNamed)}
+                className="nb-new-chat__named-form"
               >
-                <IconPlus size={16} />
-                {isSubmitting ? 'Creating...' : 'Start Chat'}
-              </button>
-            </div>
-          </form>
+                <Controller
+                  name="title"
+                  control={control}
+                  rules={{ required: 'Enter a name' }}
+                  render={({ field, fieldState: { error } }) => (
+                    <div className="nb-new-chat__named-field">
+                      <input
+                        {...field}
+                        type="text"
+                        placeholder="Chat name"
+                        disabled={creating}
+                        className={`nb-new-chat__input ${error ? 'nb-new-chat__input--error' : ''}`}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Escape') {
+                            e.preventDefault()
+                            setNamingMode(false)
+                          }
+                        }}
+                      />
+                      {error && (
+                        <span className="nb-new-chat__error">
+                          {error.message}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                />
+                <div className="nb-new-chat__named-actions">
+                  <button
+                    type="button"
+                    onClick={() => setNamingMode(false)}
+                    className="nb-new-chat__secondary-btn"
+                    disabled={creating}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={creating}
+                    className="nb-new-chat__submit nb-new-chat__submit--compact"
+                  >
+                    {creating ? 'Creating...' : 'Create'}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
 
           {existingChats && existingChats.length > 0 && (
-            <>
+            <div className="nb-new-chat__resume">
               <div className="nb-divider">
                 <div className="nb-divider__line" />
-                <span className="nb-divider__text">or resume session</span>
+                <span className="nb-divider__text">Resume chat</span>
                 <div className="nb-divider__line" />
               </div>
               <div className="nb-chat-list nb-scrollable">
@@ -134,7 +185,7 @@ export const NewChat = () => {
                   ))}
                 </div>
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>

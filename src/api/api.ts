@@ -6,6 +6,7 @@ import {
   getGeminiApiKeyFromSettings,
   getGeminiUrl,
   getLocalEndpointFromSettings,
+  isAnthropicOAuthToken,
 } from '.'
 
 export const api = () => {
@@ -38,14 +39,23 @@ export const api = () => {
         throw error
       })
   } else if (model.startsWith('claude')) {
+    const token = getAnthropicApiKeyFromSettings()
+    const headers: Record<string, string> = isAnthropicOAuthToken(token)
+      ? {
+          Authorization: `Bearer ${token}`,
+          'anthropic-beta': 'oauth-2025-04-20',
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json',
+        }
+      : {
+          'x-api-key': token,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json',
+          'anthropic-dangerously-allow-browser': 'true',
+        }
     return wretch()
       .url('https://api.anthropic.com/v1/messages')
-      .headers({
-        'x-api-key': getAnthropicApiKeyFromSettings(),
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
-        'anthropic-dangerously-allow-browser': 'true',
-      })
+      .headers(headers)
       .catcherFallback((error) => {
         console.error('[NodeBuddy] API Error:', error)
         throw error

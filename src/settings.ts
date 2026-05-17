@@ -12,8 +12,8 @@ export const settings: SettingSchemaDesc[] = [
     key: 'anthropicApiKey',
     type: 'string',
     default: '',
-    title: 'Anthropic API Key',
-    description: 'Enter your Anthropic API Key (for Claude models).',
+    title: 'Anthropic API Key or OAuth Token',
+    description: 'Enter your Anthropic API key.',
   },
   {
     key: 'localEndpoint',
