@@ -3,11 +3,7 @@ import { dropWhile } from 'lodash'
 import { getScaffoldPrompt } from '../constants'
 import { ChatMessage, ClaudeResponse } from '../types'
 import { formatPromptWithContext, getModelNameFromSettings } from '../utils'
-import {
-  api,
-  getAnthropicApiKeyFromSettings,
-  isAnthropicOAuthToken,
-} from '.'
+import { api, getAnthropicApiKeyFromSettings, isAnthropicOAuthToken } from '.'
 
 const CLAUDE_CODE_OAUTH_SYSTEM_PREFIX =
   "You are Claude Code, Anthropic's official CLI for Claude."
