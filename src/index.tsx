@@ -55,8 +55,8 @@ const main = async () => {
 
   logseq.App.registerCommandPalette(
     {
-      key: 'logseq-searchreplace-plugin',
-      label: 'Better Search: Open',
+      key: 'logseq-nodebuddy-plugin',
+      label: 'logseq-nodebuddy-plugin: Toggle Sidebar',
       keybinding: {
         mode: 'global',
         binding: 'mod+shift+n',
