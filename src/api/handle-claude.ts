@@ -1,12 +1,22 @@
 import { dropWhile } from 'lodash'
 
-import { getScaffoldPrompt } from '../constants'
+import {
+  formatCustomInstructions,
+  getBaseScaffoldPrompt,
+  getClaudeMdInstructions,
+} from '../constants'
 import { ChatMessage, ClaudeResponse } from '../types'
 import { formatPromptWithContext, getModelNameFromSettings } from '../utils'
 import { api, getAnthropicApiKeyFromSettings, isAnthropicOAuthToken } from '.'
 
 const CLAUDE_CODE_OAUTH_SYSTEM_PREFIX =
   "You are Claude Code, Anthropic's official CLI for Claude."
+
+interface SystemBlock {
+  type: 'text'
+  text: string
+  cache_control?: { type: 'ephemeral' }
+}
 
 export const handleClaude = async (messages: ChatMessage[]) => {
   const validMessages = dropWhile(messages, (m) => m.role !== 'user')
@@ -24,12 +34,21 @@ export const handleClaude = async (messages: ChatMessage[]) => {
   })
 
   const useOAuth = isAnthropicOAuthToken(getAnthropicApiKeyFromSettings())
-  const system = useOAuth
-    ? [
-        { type: 'text', text: CLAUDE_CODE_OAUTH_SYSTEM_PREFIX },
-        { type: 'text', text: getScaffoldPrompt() },
-      ]
-    : getScaffoldPrompt()
+  const customInstructions = await getClaudeMdInstructions()
+  const customBlockText = formatCustomInstructions(customInstructions)
+
+  const system: SystemBlock[] = []
+  if (useOAuth) {
+    system.push({ type: 'text', text: CLAUDE_CODE_OAUTH_SYSTEM_PREFIX })
+  }
+  system.push({ type: 'text', text: getBaseScaffoldPrompt() })
+  if (customBlockText) {
+    system.push({
+      type: 'text',
+      text: customBlockText,
+      cache_control: { type: 'ephemeral' },
+    })
+  }
 
   const response = await api()
     .post({

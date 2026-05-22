@@ -5,11 +5,12 @@ import { api } from '.'
 
 export const handleQwen = async (messages: ChatMessage[]) => {
   try {
+    const scaffoldPrompt = await getScaffoldPrompt()
     const response = await api()
       .post({
         model: getModelNameFromSettings(),
         messages: [
-          { role: 'system', content: getScaffoldPrompt() },
+          { role: 'system', content: scaffoldPrompt },
           ...messages.map((msg) => ({
             role: msg.role === 'buddy' ? 'assistant' : 'user',
             content: formatPromptWithContext({

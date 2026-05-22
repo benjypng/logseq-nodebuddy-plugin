@@ -7,6 +7,16 @@ import {
   startOfWeek,
 } from 'date-fns'
 
+import {
+  getBlock,
+  getCurrentPage,
+  getCurrentPageBlocks,
+  getPage,
+  getPageBlocks,
+  getPageLinkedRefs,
+  getTagBlocks,
+  getUserConfigs,
+} from '../mcp'
 import { ContextItem } from '../types'
 import { processBlockChildren } from '.'
 
@@ -17,7 +27,7 @@ export const getPromptContext = async (prompt: string) => {
    Handle @current-week
   */
   if (prompt.includes('@currentweek')) {
-    const { preferredDateFormat } = await logseq.App.getUserConfigs()
+    const { preferredDateFormat } = await getUserConfigs()
     const now = new Date()
     const weekNumber = getWeek(now)
     const datesInWeek = eachDayOfInterval({
@@ -27,8 +37,8 @@ export const getPromptContext = async (prompt: string) => {
 
     for (const date of datesInWeek) {
       const journalPageName = format(date, preferredDateFormat)
-      const blocks = await logseq.Editor.getPageBlocksTree(journalPageName)
-      if (blocks && blocks.length > 0) {
+      const blocks = await getPageBlocks(journalPageName)
+      if (blocks.length > 0) {
         for (const block of blocks) {
           const flattenedContent = processBlockChildren(
             'current-week',
@@ -46,16 +56,16 @@ export const getPromptContext = async (prompt: string) => {
   */
   if (prompt.includes('@currentpage')) {
     let blockTree: BlockEntity[] | null = null
-    const blocks = await logseq.Editor.getCurrentPageBlocksTree()
+    const blocks = await getCurrentPageBlocks()
 
     let currPageRef = ''
-    if (blocks && blocks.length > 0 && blocks[0]?.title) {
+    if (blocks.length > 0 && blocks[0]?.title) {
       blockTree = blocks
     } else {
-      const currPage = await logseq.Editor.getCurrentPage()
+      const currPage = await getCurrentPage()
       currPageRef = currPage?.fullTitle as string
       if (currPage) {
-        const zoomedInBlock = await logseq.Editor.getBlock(currPage.uuid, {
+        const zoomedInBlock = await getBlock(currPage.uuid, {
           includeChildren: true,
         })
         if (zoomedInBlock) {
@@ -82,15 +92,13 @@ export const getPromptContext = async (prompt: string) => {
   for (const match of tagMatches) {
     const tagName = match[1]
     if (!tagName) continue
-    const tagPage = await logseq.Editor.getPage(tagName)
+    const tagPage = await getPage(tagName)
 
     if (!tagPage?.ident) continue
-    const blocksContainingTags = await logseq.Editor.getTagObjects(
-      tagPage.ident,
-    )
-    if (blocksContainingTags && blocksContainingTags.length > 0) {
+    const blocksContainingTags = await getTagBlocks(tagPage.ident)
+    if (blocksContainingTags.length > 0) {
       const blockPromises = blocksContainingTags.map((block) =>
-        logseq.Editor.getBlock(block.uuid, { includeChildren: true }),
+        getBlock(block.uuid, { includeChildren: true }),
       )
       const fullBlocks = await Promise.all(blockPromises)
       for (const fullBlock of fullBlocks) {
@@ -115,16 +123,11 @@ export const getPromptContext = async (prompt: string) => {
     const pageRef = match[1]
     if (!pageRef) continue
 
-    const pageLinkedRefs = await logseq.Editor.getPageLinkedReferences(pageRef)
-    if (!pageLinkedRefs) continue
+    const linkedBlocks = await getPageLinkedRefs(pageRef)
 
-    const refs = pageLinkedRefs as unknown as Record<string, BlockEntity[]>
-
-    const linkedBlocks = Object.values(refs).flat()
-
-    if (linkedBlocks && linkedBlocks.length > 0) {
+    if (linkedBlocks.length > 0) {
       const blockPromises = linkedBlocks.map((block) =>
-        logseq.Editor.getBlock(block.uuid, { includeChildren: true }),
+        getBlock(block.uuid, { includeChildren: true }),
       )
 
       const fullBlocks = await Promise.all(blockPromises)

@@ -1,11 +1,19 @@
+import {
+  addBlockTag,
+  appendBlockInPage,
+  createPage,
+  createTag,
+  getPage,
+  updateBlock,
+} from '../mcp'
 import { ChatMessage } from '../types'
 
 export const writeHistoryToGraph = {
   createPageAndAddTag: async (title: string) => {
     const pageName = `${logseq.settings?.nodeBuddyTag}:${title}`
-    let page = await logseq.Editor.getPage(pageName)
+    let page = await getPage(pageName)
     if (!page) {
-      page = await logseq.Editor.createPage(
+      page = await createPage(
         pageName,
         {},
         { redirect: false, createFirstBlock: false, journal: false },
@@ -14,25 +22,25 @@ export const writeHistoryToGraph = {
     if (!page) throw Error('NodeBuddy: Page not created')
 
     const tagName = logseq.settings?.nodeBuddyTag as string
-    let tag = await logseq.Editor.getPage(tagName)
+    let tag = await getPage(tagName)
 
     if (!tag) {
-      tag = await logseq.Editor.createTag(tagName)
+      tag = await createTag(tagName)
     }
 
     if (!tag) throw Error('NodeBuddy: Tag not created')
-    await logseq.Editor.addBlockTag(page.uuid, tag.uuid)
+    await addBlockTag(page.uuid, tag.uuid)
 
     return page
   },
   writeMessage: async (pageName: string, msg: ChatMessage) => {
     // Create block first
-    const block = await logseq.Editor.appendBlockInPage(pageName, '')
+    const block = await appendBlockInPage(pageName, '')
     if (block) {
       // Wrap chat message in #Code to avoid creating unnecessary backlinks
-      await logseq.Editor.addBlockTag(block?.uuid, 'code')
+      await addBlockTag(block.uuid, 'code')
       // Then append message
-      await logseq.Editor.updateBlock(block.uuid, JSON.stringify(msg))
+      await updateBlock(block.uuid, JSON.stringify(msg))
     }
   },
 }

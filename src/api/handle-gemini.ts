@@ -23,9 +23,10 @@ export const handleGemini = async (messages: ChatMessage[]) => {
       ],
     }
   })
+  const scaffoldPrompt = await getScaffoldPrompt()
   const response = await api()
     .post({
-      systemInstruction: { parts: [{ text: getScaffoldPrompt() }] },
+      systemInstruction: { parts: [{ text: scaffoldPrompt }] },
       contents: contents,
       generationConfig: {
         temperature: 0.7,

@@ -5,6 +5,7 @@ import { TitleHeader, UserInput } from './components'
 import { Avatar } from './components/Avatar'
 import { MessageBubble } from './components/MessageBubble'
 import { useLogseqPage } from './hooks'
+import { getPageBlocks } from './mcp'
 import { ChatFormValues, ChatMessage } from './types'
 import { isNodeBuddyPage } from './utils'
 
@@ -21,8 +22,7 @@ export const ChatBox = () => {
       if (!page) return
       const nodeBuddyPage = await isNodeBuddyPage(page.id)
       if (nodeBuddyPage) {
-        const currPbt = await logseq.Editor.getPageBlocksTree(page.name)
-        if (!currPbt) return
+        const currPbt = await getPageBlocks(page.name)
         if (currPbt.length === 0) {
           setMessages([
             {
