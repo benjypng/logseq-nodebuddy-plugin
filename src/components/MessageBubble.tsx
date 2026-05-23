@@ -4,9 +4,11 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
 import { MessageBubbleProps } from '../types'
+import { PlanCard } from './PlanCard'
+import { ToolCallCard } from './ToolCallCard'
 
-export const MessageBubble = ({ msg }: MessageBubbleProps) => {
-  const { role, content, context } = msg
+export const MessageBubble = ({ msg, onPlanDecide }: MessageBubbleProps) => {
+  const { role, content, context, toolCalls, plan } = msg
   const [copied, setCopied] = useState(false)
 
   const handleCopy = () => {
@@ -36,10 +38,20 @@ export const MessageBubble = ({ msg }: MessageBubbleProps) => {
                 <span className="nb-thinking__dot" />
               </span>
             </div>
-          ) : (
+          ) : content ? (
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
-          )}
+          ) : null}
         </div>
+
+        {plan && <PlanCard plan={plan} onDecide={onPlanDecide} />}
+
+        {toolCalls && toolCalls.length > 0 && (
+          <div className="nb-tool-calls">
+            {toolCalls.map((call) => (
+              <ToolCallCard key={call.id} call={call} />
+            ))}
+          </div>
+        )}
       </div>
 
       {context && (

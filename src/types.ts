@@ -14,6 +14,8 @@ export type NodeBuddyModels =
 export interface LogseqPageContextInterface {
   page: PageEntity | null
   setPage: (page: PageEntity | null) => void
+  wikiMode: boolean
+  setWikiMode: (enabled: boolean) => void
 }
 
 export interface ChatFormValues {
@@ -35,11 +37,69 @@ export interface ContextItem {
   updatedAt: number
 }
 
+export type ToolCallStatus =
+  | 'pending'
+  | 'running'
+  | 'completed'
+  | 'errored'
+  | 'blocked'
+
+export interface ToolCall {
+  id: string
+  name: string
+  input: unknown
+  status: ToolCallStatus
+  result?: unknown
+  error?: string
+}
+
+export type PlanStepStatus =
+  | 'pending'
+  | 'running'
+  | 'done'
+  | 'failed'
+  | 'skipped'
+
+export interface PlanStep {
+  title: string
+  status: PlanStepStatus
+  note?: string
+}
+
+export type PlanStatus = 'awaiting-approval' | 'approved' | 'rejected'
+
+export interface PlanState {
+  id: string
+  status: PlanStatus
+  steps: PlanStep[]
+}
+
 export interface ChatMessage {
   id: string
   role: MessageRole
   content: string
   context?: ContextItem[]
+  toolCalls?: ToolCall[]
+  plan?: PlanState
+}
+
+export type ToolDecision = 'approve' | 'reject'
+
+export interface ToolCallCallbacks {
+  onToolCallStart: (messageId: string, call: ToolCall) => void
+  onToolCallUpdate: (
+    messageId: string,
+    callId: string,
+    partial: Partial<ToolCall>,
+  ) => void
+  onPlanDeclared: (messageId: string, plan: PlanState) => void
+  onPlanUpdate: (messageId: string, partial: Partial<PlanState>) => void
+  onPlanStepUpdate: (
+    messageId: string,
+    index: number,
+    partial: Partial<PlanStep>,
+  ) => void
+  awaitDecision: (id: string) => Promise<ToolDecision>
 }
 
 export interface GeminiResponse {
@@ -86,11 +146,13 @@ export interface OllamaResponse {
   }
 }
 
+export type ClaudeContentBlock =
+  | { type: 'text'; text: string }
+  | { type: 'tool_use'; id: string; name: string; input: unknown }
+  | { type: string; [k: string]: unknown }
+
 export interface ClaudeResponse {
-  content: {
-    type: string
-    text: string
-  }[]
+  content: ClaudeContentBlock[]
   id: string
   model: string
   role: string
@@ -100,6 +162,8 @@ export interface ClaudeResponse {
   usage: {
     input_tokens: number
     output_tokens: number
+    cache_read_input_tokens?: number
+    cache_creation_input_tokens?: number
   }
 }
 
@@ -110,6 +174,7 @@ export interface FormatPromptProps {
 
 export interface MessageBubbleProps {
   msg: Partial<ChatMessage>
+  onPlanDecide?: (planId: string, decision: ToolDecision) => void
 }
 
 export interface AvatarProps {

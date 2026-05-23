@@ -1,18 +1,25 @@
 import { PageEntity } from '@logseq/libs/dist/LSPlugin'
-import { IconMessage, IconPencil, IconPlus } from '@tabler/icons-react'
+import {
+  IconBook2,
+  IconMessage,
+  IconPencil,
+  IconPlus,
+} from '@tabler/icons-react'
 import { format } from 'date-fns'
 import { useEffect, useState } from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
+import { getClaudeMdInstructions } from '../constants'
 import { useLogseqPage } from '../hooks'
 import { NewPageFormValues } from '../types'
 import { formatChatName, writeHistoryToGraph } from '../utils'
 
 export const NewChat = () => {
-  const { setPage } = useLogseqPage()
+  const { setPage, setWikiMode } = useLogseqPage()
   const [existingChats, setExistingChats] = useState<PageEntity[]>()
   const [namingMode, setNamingMode] = useState(false)
   const [creating, setCreating] = useState(false)
+  const [claudeMdReady, setClaudeMdReady] = useState<boolean | null>(null)
 
   const { control, handleSubmit, setFocus } = useForm<NewPageFormValues>({
     defaultValues: { title: '' },
@@ -48,6 +55,21 @@ export const NewChat = () => {
   useEffect(() => {
     if (namingMode) setFocus('title')
   }, [namingMode, setFocus])
+
+  useEffect(() => {
+    let cancelled = false
+    const check = async () => {
+      const text = await getClaudeMdInstructions()
+      if (!cancelled) setClaudeMdReady(text.length > 0)
+    }
+    check()
+    const onVisible = () => check()
+    logseq.on('ui:visible:changed', onVisible)
+    return () => {
+      cancelled = true
+      logseq.off('ui:visible:changed', onVisible)
+    }
+  }, [])
 
   const startAutoNamedChat = async () => {
     if (creating) return
@@ -104,6 +126,28 @@ export const NewChat = () => {
                   <IconPencil size={12} />
                   Name it yourself
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setWikiMode(true)}
+                  disabled={!claudeMdReady}
+                  title={
+                    claudeMdReady === false
+                      ? 'Wiki Mode requires a CLAUDE.md page with at least one non-empty block in this graph.'
+                      : claudeMdReady === null
+                        ? 'Checking CLAUDE.md…'
+                        : 'Start Wiki Mode'
+                  }
+                  className="nb-new-chat__submit nb-new-chat__submit--wiki"
+                >
+                  <IconBook2 size={16} />
+                  Start Wiki Mode
+                </button>
+                {claudeMdReady === false && (
+                  <span className="nb-new-chat__hint">
+                    Add content to a <code>CLAUDE.md</code> page in this graph
+                    to enable Wiki Mode.
+                  </span>
+                )}
               </>
             ) : (
               <form

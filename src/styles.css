@@ -891,3 +891,291 @@ body,
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* ---------- Wiki Mode / Tool calls ---------- */
+.nb-header__btn--active {
+  background-color: var(--nb-accent, #4c8bf5);
+  color: white;
+  border: 1px solid var(--nb-accent, #4c8bf5);
+}
+
+.nb-tool-calls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.nb-tool-card {
+  border: 1px solid var(--nb-border, rgba(120, 120, 120, 0.25));
+  border-radius: 6px;
+  background: var(--nb-bg-subtle, rgba(120, 120, 120, 0.06));
+  font-size: 12px;
+}
+
+.nb-tool-card--pending {
+  border-color: #d4a017;
+}
+.nb-tool-card--running {
+  border-color: #4c8bf5;
+}
+.nb-tool-card--completed {
+  border-color: #2e7d32;
+}
+.nb-tool-card--rejected,
+.nb-tool-card--errored {
+  border-color: #c62828;
+}
+
+.nb-tool-card__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+}
+
+.nb-tool-card__toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: var(--nb-text-secondary, #888);
+}
+
+.nb-tool-card__name {
+  flex: 1;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+}
+
+.nb-tool-card__status {
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--nb-text-secondary, #888);
+}
+
+.nb-tool-card__body {
+  margin: 0;
+  padding: 6px 8px;
+  border-top: 1px solid var(--nb-border, rgba(120, 120, 120, 0.2));
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 220px;
+  overflow: auto;
+}
+
+.nb-tool-card__actions {
+  display: flex;
+  gap: 6px;
+  padding: 6px 8px;
+  border-top: 1px solid var(--nb-border, rgba(120, 120, 120, 0.2));
+}
+
+.nb-tool-card__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.nb-tool-card__btn--approve {
+  background: #2e7d32;
+  color: white;
+}
+
+.nb-tool-card__btn--reject {
+  background: transparent;
+  border-color: #c62828;
+  color: #c62828;
+}
+
+.nb-new-chat__submit--wiki {
+  background: transparent;
+  color: var(--nb-text-secondary, #888);
+  border: 1px dashed var(--nb-border, rgba(120, 120, 120, 0.4));
+}
+
+.nb-new-chat__submit--wiki:hover:not(:disabled) {
+  background: var(--nb-hover-bg);
+  color: var(--nb-text);
+  border-style: solid;
+}
+
+.nb-new-chat__hint {
+  font-size: 11px;
+  color: var(--nb-text-secondary, #888);
+  text-align: center;
+  margin-top: -4px;
+}
+
+.nb-new-chat__hint code {
+  font-family: ui-monospace, monospace;
+  font-size: 10.5px;
+  padding: 0 3px;
+  background: var(--nb-hover-bg, rgba(120, 120, 120, 0.12));
+  border-radius: 3px;
+}
+
+/* Slash-command affordance in the chat textarea */
+.nb-input-wrapper {
+  position: relative;
+}
+
+.nb-command-chip {
+  position: absolute;
+  top: -10px;
+  left: 8px;
+  z-index: 1;
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  line-height: 1;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: #4c8bf5;
+  color: white;
+  pointer-events: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.nb-command-chip--unknown {
+  background: #c62828;
+}
+
+.nb-textarea--command {
+  border-color: #4c8bf5 !important;
+  background: rgba(76, 139, 245, 0.06);
+  font-family: ui-monospace, monospace;
+}
+
+.nb-textarea--command-unknown {
+  border-color: #c62828 !important;
+  background: rgba(198, 40, 40, 0.05);
+  font-family: ui-monospace, monospace;
+}
+
+/* Plan card */
+.nb-plan-card {
+  margin-top: 10px;
+  border: 1px solid var(--nb-border, rgba(120, 120, 120, 0.3));
+  border-left-width: 3px;
+  border-radius: 6px;
+  background: var(--nb-bg-subtle, rgba(120, 120, 120, 0.05));
+  font-size: 12px;
+  overflow: hidden;
+}
+
+.nb-plan-card--awaiting-approval {
+  border-left-color: #d4a017;
+}
+.nb-plan-card--approved {
+  border-left-color: #2e7d32;
+}
+.nb-plan-card--rejected {
+  border-left-color: #c62828;
+}
+
+.nb-plan-card__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--nb-border, rgba(120, 120, 120, 0.2));
+}
+
+.nb-plan-card__title {
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.nb-plan-card__status {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--nb-text-secondary, #888);
+}
+
+.nb-plan-card__steps {
+  list-style: none;
+  margin: 0;
+  padding: 6px 10px;
+}
+
+.nb-plan-step {
+  display: flex;
+  gap: 6px;
+  padding: 3px 0;
+  line-height: 1.4;
+}
+
+.nb-plan-step__icon {
+  flex-shrink: 0;
+  width: 14px;
+  text-align: center;
+  font-family: ui-monospace, monospace;
+  color: var(--nb-text-secondary, #888);
+}
+
+.nb-plan-step--done .nb-plan-step__icon {
+  color: #2e7d32;
+}
+.nb-plan-step--running .nb-plan-step__icon {
+  color: #4c8bf5;
+}
+.nb-plan-step--failed .nb-plan-step__icon {
+  color: #c62828;
+}
+.nb-plan-step--skipped .nb-plan-step__icon {
+  color: #d4a017;
+}
+
+.nb-plan-step__title {
+  flex: 1;
+}
+
+.nb-plan-step__note {
+  color: var(--nb-text-secondary, #888);
+  font-style: italic;
+}
+
+.nb-plan-card__actions {
+  display: flex;
+  gap: 8px;
+  padding: 8px 10px;
+  border-top: 1px solid var(--nb-border, rgba(120, 120, 120, 0.2));
+}
+
+.nb-plan-card__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.nb-plan-card__btn--approve {
+  background: #2e7d32;
+  color: white;
+}
+
+.nb-plan-card__btn--reject {
+  background: transparent;
+  border-color: #c62828;
+  color: #c62828;
+}
+
+/* Tool card: drop the now-unused pending/approved/rejected variants */
+.nb-tool-card--blocked {
+  border-color: #c62828;
+  opacity: 0.85;
+}

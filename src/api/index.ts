@@ -1,4 +1,5 @@
 export * from './api'
+export * from './fetch-url'
 export * from './get-anthropic-api-key-from-settings'
 export * from './get-api-key-from-settings'
 export * from './get-gemini-url'

@@ -6,11 +6,26 @@ import { Avatar } from './components/Avatar'
 import { MessageBubble } from './components/MessageBubble'
 import { useLogseqPage } from './hooks'
 import { getPageBlocks } from './mcp'
-import { ChatFormValues, ChatMessage } from './types'
+import { ChatFormValues, ChatMessage, ToolDecision } from './types'
 import { isNodeBuddyPage } from './utils'
+import { clearPendingDecisions, resolveDecision } from './wiki'
+
+const WIKI_GREETING = `**Wiki Mode is on.** This conversation is ephemeral — it disappears when you close the sidebar.
+
+Before any writes to your graph, I'll declare a plan. You'll see a single **Approve plan** card; approving it lets me execute every step without further prompts. You'll see each write as it happens, and a final status report when the operation is done.
+
+Slash commands:
+
+- \`/session-start\` — snapshot of the graph: page counts by type and the last 5 days of journal activity.
+- \`/ingest <source>\` — file a source as a \`#Source\` page plus seeded \`#Concept\` / \`#Entity\` / \`#Question\` pages. \`<source>\` can be a URL (fetched automatically), \`[[Page Name]]\` or page UUID (promote an existing graph page in place), \`block:<uuid>\` (treat a block as the source), or pasted text.
+- \`/query <question>\` — answer from your graph (not raw sources), with \`[[Page Name]]\` citations. I'll offer to file substantive answers as \`#Synthesis\`.
+- \`/lint\` — sweep for orphans, contradictions, stale claims; file findings as tasks on \`Lint Followups\`.
+- \`/lint-seedlings\` — cluster \`#Seedling\` blocks by theme and propose Promote / Link / Merge / Leave for each.
+
+Or just ask me anything — I'll use the read tools to look it up.`
 
 export const ChatBox = () => {
-  const { page } = useLogseqPage()
+  const { page, wikiMode } = useLogseqPage()
   const viewport = useRef<HTMLDivElement>(null)
   const [messages, setMessages] = useState<ChatMessage[]>([])
 
@@ -18,6 +33,17 @@ export const ChatBox = () => {
     defaultValues: { prompt: '' },
   })
   useEffect(() => {
+    if (wikiMode) {
+      setMessages([
+        {
+          id: 'wiki-greeting',
+          role: 'buddy',
+          content: WIKI_GREETING,
+        },
+      ])
+      clearPendingDecisions()
+      return
+    }
     const getExistingMessages = async () => {
       if (!page) return
       const nodeBuddyPage = await isNodeBuddyPage(page.id)
@@ -42,7 +68,7 @@ export const ChatBox = () => {
       }
     }
     getExistingMessages()
-  }, [page])
+  }, [page, wikiMode])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -70,6 +96,10 @@ export const ChatBox = () => {
     })
   }, [messages])
 
+  const handlePlanDecide = (planId: string, decision: ToolDecision) => {
+    resolveDecision(planId, decision)
+  }
+
   return (
     <FormProvider {...formMethods}>
       <TitleHeader />
@@ -82,7 +112,7 @@ export const ChatBox = () => {
               className={`nb-message-row nb-message-row--${msg.role}`}
             >
               {msg.role === 'buddy' && <Avatar role={'buddy'} />}
-              <MessageBubble msg={msg} />
+              <MessageBubble msg={msg} onPlanDecide={handlePlanDecide} />
               {msg.role === 'user' && <Avatar role={'user'} />}
             </div>
           ))}

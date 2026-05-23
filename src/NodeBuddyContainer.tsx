@@ -22,8 +22,19 @@ const setSidebarWidth = (width: number) => {
 }
 
 export const NodeBuddyContainer = () => {
-  const [page, setPage] = useState<PageEntity | null>(null)
+  const [page, setPageState] = useState<PageEntity | null>(null)
+  const [wikiMode, setWikiModeState] = useState<boolean>(false)
   const [colorScheme, setColorScheme] = useState<ColorScheme>('light')
+
+  // Choosing a page exits wiki mode; entering wiki mode clears any page.
+  const setPage = (next: PageEntity | null) => {
+    setPageState(next)
+    if (next) setWikiModeState(false)
+  }
+  const setWikiMode = (enabled: boolean) => {
+    setWikiModeState(enabled)
+    if (enabled) setPageState(null)
+  }
   const [isDragging, setIsDragging] = useState(false)
   const dragRef = useRef({ startScreenX: 0, startWidth: 0 })
 
@@ -107,9 +118,11 @@ export const NodeBuddyContainer = () => {
           className={`nb-resize-handle ${isDragging ? 'nb-resize-handle--active' : ''}`}
           onMouseDown={handleResizeStart}
         />
-        <LogseqPageContext.Provider value={{ page, setPage }}>
-          {!page && <NewChat />}
-          {page && <ChatBox />}
+        <LogseqPageContext.Provider
+          value={{ page, setPage, wikiMode, setWikiMode }}
+        >
+          {!page && !wikiMode && <NewChat />}
+          {(page || wikiMode) && <ChatBox />}
         </LogseqPageContext.Provider>
       </div>
     </ColorSchemeContext.Provider>

@@ -1,4 +1,6 @@
 export * from './MessageBubble'
 export * from './NewChat'
+export * from './PlanCard'
 export * from './TitleHeader'
+export * from './ToolCallCard'
 export * from './UserInput'
