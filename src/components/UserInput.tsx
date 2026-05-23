@@ -17,6 +17,7 @@ import {
   buildCommandPrompt,
   buildSessionStartContext,
   loadIngestSource,
+  parseIngestTarget,
   parseSlashCommand,
 } from '../wiki'
 
@@ -49,6 +50,15 @@ const AutosizeTextarea = ({
   const parsed = wikiMode ? parseSlashCommand(value) : null
   const isInvalidSlash = wikiMode && !parsed && value.trim().startsWith('/')
 
+  const ingestTarget =
+    parsed?.cmd === 'ingest' ? parseIngestTarget(parsed.args) : null
+
+  const chipLabel = parsed
+    ? parsed.cmd === 'ingest' && ingestTarget && ingestTarget.kind !== 'empty'
+      ? `/ingest → ${ingestTarget.kind}`
+      : `/${parsed.cmd}`
+    : null
+
   const modifier = parsed
     ? 'nb-textarea--command'
     : isInvalidSlash
@@ -58,9 +68,9 @@ const AutosizeTextarea = ({
   return (
     <div className="nb-input-wrapper">
       {error && <span className="nb-input-error">{error}</span>}
-      {parsed && (
+      {chipLabel && (
         <span className="nb-command-chip" title="Slash command detected">
-          /{parsed.cmd}
+          {chipLabel}
         </span>
       )}
       {isInvalidSlash && (
@@ -119,7 +129,7 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
         if (parsed.cmd === 'ingest') {
           if (!parsed.args) {
             logseq.UI.showMsg(
-              '/ingest needs a URL, [[Page Name]], page UUID, or pasted text.',
+              '/ingest needs a URL, page:<title>, uuid:<uuid>, or pasted text.',
               'warning',
             )
             return

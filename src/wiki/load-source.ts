@@ -3,15 +3,23 @@ import type { BlockEntity } from '@logseq/libs/dist/LSPlugin'
 import { fetchUrl } from '../api'
 import { getBlock, getPage, getPageBlocks } from '../mcp'
 
-export type IngestSourceKind = 'url' | 'logseq-page' | 'logseq-block' | 'inline'
+/** What the user asked for (intent, before lookup). */
+export type IngestTargetKind = 'url' | 'page' | 'uuid' | 'text' | 'empty'
+
+/** What was actually loaded (after lookup). */
+export type LoadedSourceKind =
+  | 'url'
+  | 'logseq-page'
+  | 'logseq-block'
+  | 'inline'
 
 export interface IngestTarget {
-  kind: IngestSourceKind
+  kind: IngestTargetKind
   ref: string
 }
 
 export interface LoadedIngestSource {
-  kind: IngestSourceKind
+  kind: LoadedSourceKind
   identifier: string
   title?: string
   pageUuid?: string
@@ -19,26 +27,34 @@ export interface LoadedIngestSource {
   text: string
 }
 
+const URL_RE = /^https?:\/\//i
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const PAGE_PREFIX_RE = /^page:/i
+const UUID_PREFIX_RE = /^uuid:/i
 
+/**
+ * Parse the user's `/ingest` argument into an intent.
+ *
+ * Rules (in order):
+ *   1. Starts with `http(s)://` → URL.
+ *   2. Starts with `page:` (case-insensitive) → page lookup; the rest is the
+ *      page title verbatim (colons in the title are fine).
+ *   3. Starts with `uuid:` (case-insensitive) → page-or-block by UUID.
+ *   4. Empty → 'empty' (so the caller can show a friendly hint).
+ *   5. Anything else → 'text' (pasted source content).
+ */
 export const parseIngestTarget = (raw: string): IngestTarget => {
   const arg = raw.trim()
-  if (/^https?:\/\//i.test(arg)) return { kind: 'url', ref: arg }
-
-  const pageMatch = arg.match(/^\[\[(.+?)\]\]$/)
-  if (pageMatch?.[1]) return { kind: 'logseq-page', ref: pageMatch[1].trim() }
-
-  if (/^page:/i.test(arg)) {
-    return { kind: 'logseq-page', ref: arg.replace(/^page:/i, '').trim() }
+  if (!arg) return { kind: 'empty', ref: '' }
+  if (URL_RE.test(arg)) return { kind: 'url', ref: arg }
+  if (PAGE_PREFIX_RE.test(arg)) {
+    return { kind: 'page', ref: arg.replace(PAGE_PREFIX_RE, '').trim() }
   }
-  if (/^block:/i.test(arg)) {
-    return { kind: 'logseq-block', ref: arg.replace(/^block:/i, '').trim() }
+  if (UUID_PREFIX_RE.test(arg)) {
+    return { kind: 'uuid', ref: arg.replace(UUID_PREFIX_RE, '').trim() }
   }
-
-  if (UUID_RE.test(arg)) return { kind: 'logseq-block', ref: arg }
-
-  return { kind: 'inline', ref: arg }
+  return { kind: 'text', ref: arg }
 }
 
 const flattenBlockTree = (blocks: BlockEntity[], depth = 0): string => {
@@ -60,13 +76,20 @@ export const loadIngestSource = async (
 ): Promise<LoadedIngestSource> => {
   const parsed = parseIngestTarget(raw)
   switch (parsed.kind) {
+    case 'empty':
+      throw new Error(
+        '/ingest needs an argument: a URL, page:<title>, uuid:<uuid>, or pasted text.',
+      )
     case 'url': {
       const res = await fetchUrl(parsed.ref)
       return { kind: 'url', identifier: parsed.ref, text: res.text }
     }
-    case 'logseq-page': {
+    case 'page': {
+      if (!parsed.ref) {
+        throw new Error('`page:` needs a title after the colon.')
+      }
       const page = await getPage(parsed.ref)
-      if (!page) throw new Error(`No page found for "${parsed.ref}"`)
+      if (!page) throw new Error(`No page found titled "${parsed.ref}".`)
       const blocks = await getPageBlocks(page.name)
       return {
         kind: 'logseq-page',
@@ -76,9 +99,26 @@ export const loadIngestSource = async (
         text: flattenBlockTree(blocks),
       }
     }
-    case 'logseq-block': {
-      // A UUID can be either a page or a block. Try page first.
-      const maybePage = await getPage(parsed.ref)
+    case 'uuid': {
+      if (!parsed.ref) {
+        throw new Error('`uuid:` needs a UUID after the colon.')
+      }
+      if (!UUID_RE.test(parsed.ref)) {
+        throw new Error(
+          `"${parsed.ref}" is not a valid UUID. Expected 8-4-4-4-12 hex form.`,
+        )
+      }
+      // Try page first (pages are blocks internally). Some Logseq builds throw
+      // on non-page UUIDs passed to getPage, so swallow and fall through.
+      let maybePage = null
+      try {
+        maybePage = await getPage(parsed.ref)
+      } catch (err) {
+        console.warn(
+          '[NodeBuddy] getPage(uuid) failed, falling through to getBlock:',
+          err,
+        )
+      }
       if (maybePage) {
         const blocks = await getPageBlocks(maybePage.name)
         return {
@@ -90,7 +130,9 @@ export const loadIngestSource = async (
         }
       }
       const block = await getBlock(parsed.ref, { includeChildren: true })
-      if (!block) throw new Error(`No page or block found for "${parsed.ref}"`)
+      if (!block) {
+        throw new Error(`No page or block found with UUID "${parsed.ref}".`)
+      }
       const title = block.title?.slice(0, 80) ?? 'Block'
       return {
         kind: 'logseq-block',
@@ -100,7 +142,7 @@ export const loadIngestSource = async (
         text: flattenBlockTree([block]),
       }
     }
-    case 'inline':
+    case 'text':
       return { kind: 'inline', identifier: parsed.ref, text: parsed.ref }
   }
 }

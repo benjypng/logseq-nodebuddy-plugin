@@ -17,7 +17,11 @@ Before any writes to your graph, I'll declare a plan. You'll see a single **Appr
 Slash commands:
 
 - \`/session-start\` — snapshot of the graph: page counts by type and the last 5 days of journal activity.
-- \`/ingest <source>\` — file a source as a \`#Source\` page plus seeded \`#Concept\` / \`#Entity\` / \`#Question\` pages. \`<source>\` can be a URL (fetched automatically), \`[[Page Name]]\` or page UUID (promote an existing graph page in place), \`block:<uuid>\` (treat a block as the source), or pasted text.
+- \`/ingest <source>\` — file a source as a \`#Source\` page plus seeded \`#Concept\` / \`#Entity\` / \`#Question\` pages. \`<source>\` is one of:
+  - **URL** — \`/ingest https://example.com/article\` (auto-fetched)
+  - **\`page:<title>\`** — \`/ingest page:My Page Title\` (promote an existing page in place; spaces and colons in the title are fine)
+  - **\`uuid:<uuid>\`** — \`/ingest uuid:6914813f-2f61-4da4-9f93-08c405a29fa5\` (tries page first, falls back to block)
+  - **pasted text** — \`/ingest some rough notes about X\` (catch-all)
 - \`/query <question>\` — answer from your graph (not raw sources), with \`[[Page Name]]\` citations. I'll offer to file substantive answers as \`#Synthesis\`.
 - \`/lint\` — sweep for orphans, contradictions, stale claims; file findings as tasks on \`Lint Followups\`.
 - \`/lint-seedlings\` — cluster \`#Seedling\` blocks by theme and propose Promote / Link / Merge / Leave for each.

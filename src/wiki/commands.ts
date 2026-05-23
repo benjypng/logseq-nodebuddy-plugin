@@ -55,7 +55,7 @@ ${src.text || '(empty page)'}
     case 'logseq-block':
       return `# Source for this ingest — EXISTING GRAPH BLOCK
 
-The source is a single block (UUID \`${src.blockUuid}\`) inside the graph. Decide with the user whether to:
+The user passed \`uuid:${src.blockUuid}\` and it resolved to a block (not a page). Treat the block content as the source material. Decide with the user whether to:
   (a) promote the block's parent page to a \`#Source\` page (see logseq-page handling), or
   (b) create a new \`#Source\` page that summarises this block's content.
 Default to (b) unless the user signals (a).

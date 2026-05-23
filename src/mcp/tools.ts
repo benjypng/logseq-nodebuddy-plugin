@@ -10,6 +10,16 @@ import type { JSONSchema, Tool, ToolRegistry } from './types'
 
 /* ---------- Read tools ---------- */
 
+/**
+ * Logseq's page-name index is case-insensitive but the API requires lowercase
+ * input for string lookups. Normalise strings; pass UUIDs / db-ids through.
+ * (UUIDs are already lowercase by spec; lowercasing them is a no-op.)
+ */
+const normalisePageRef = <T extends PageIdentity | number>(ref: T): T => {
+  if (typeof ref === 'string') return ref.toLowerCase() as T
+  return ref
+}
+
 export const getCurrentPage = async (): Promise<PageEntity | null> => {
   const page = await logseq.Editor.getCurrentPage()
   return (page as PageEntity | null) ?? null
@@ -18,14 +28,14 @@ export const getCurrentPage = async (): Promise<PageEntity | null> => {
 export const getPage = async (
   identity: PageIdentity | number,
 ): Promise<PageEntity | null> => {
-  const page = await logseq.Editor.getPage(identity)
+  const page = await logseq.Editor.getPage(normalisePageRef(identity))
   return page ?? null
 }
 
 export const getPageBlocks = async (
   name: PageIdentity,
 ): Promise<BlockEntity[]> => {
-  const blocks = await logseq.Editor.getPageBlocksTree(name)
+  const blocks = await logseq.Editor.getPageBlocksTree(normalisePageRef(name))
   return blocks ?? []
 }
 
@@ -52,7 +62,9 @@ export const getTagBlocks = async (
 export const getPageLinkedRefs = async (
   page: PageIdentity,
 ): Promise<BlockEntity[]> => {
-  const refs = await logseq.Editor.getPageLinkedReferences(page)
+  const refs = await logseq.Editor.getPageLinkedReferences(
+    normalisePageRef(page),
+  )
   if (!refs) return []
   return refs.flatMap(([, blocks]) => blocks)
 }
@@ -214,7 +226,10 @@ export const appendBlockInPage = async (
   page: PageIdentity,
   content: string,
 ): Promise<BlockEntity | null> => {
-  const block = await logseq.Editor.appendBlockInPage(page, content)
+  const block = await logseq.Editor.appendBlockInPage(
+    normalisePageRef(page),
+    content,
+  )
   return block ?? null
 }
 
