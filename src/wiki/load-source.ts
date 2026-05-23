@@ -7,11 +7,7 @@ import { getBlock, getPage, getPageBlocks } from '../mcp'
 export type IngestTargetKind = 'url' | 'page' | 'uuid' | 'text' | 'empty'
 
 /** What was actually loaded (after lookup). */
-export type LoadedSourceKind =
-  | 'url'
-  | 'logseq-page'
-  | 'logseq-block'
-  | 'inline'
+export type LoadedSourceKind = 'url' | 'logseq-page' | 'logseq-block' | 'inline'
 
 export interface IngestTarget {
   kind: IngestTargetKind
