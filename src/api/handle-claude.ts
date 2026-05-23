@@ -18,6 +18,7 @@ import type {
   ToolCallCallbacks,
 } from '../types'
 import { formatPromptWithContext, getModelNameFromSettings } from '../utils'
+import { SLASH_COMMANDS_REFERENCE } from '../wiki'
 import { api, getAnthropicApiKeyFromSettings, isAnthropicOAuthToken } from '.'
 
 const CLAUDE_CODE_OAUTH_SYSTEM_PREFIX =
@@ -52,6 +53,17 @@ const buildSystem = async (
       cache_control: { type: 'ephemeral' },
     })
   }
+  // Slash-command workflows live in a second cached system block. Moving them
+  // out of per-turn user messages means each operation pays for them once
+  // (cache write), then every subsequent round + every later operation in the
+  // 5-minute TTL window hits cache instead of re-tokenising.
+  if (wikiMode) {
+    blocks.push({
+      type: 'text',
+      text: SLASH_COMMANDS_REFERENCE,
+      cache_control: { type: 'ephemeral' },
+    })
+  }
   return blocks
 }
 
@@ -78,6 +90,44 @@ interface ToolResultBlock {
   tool_use_id: string
   content: string
   is_error?: boolean
+  cache_control?: { type: 'ephemeral' }
+}
+
+/**
+ * Cap individual tool_result content so a single big read (e.g. a long page
+ * tree, a wide datascript query) doesn't bloat every subsequent round of the
+ * tool-use loop. Claude is told it can re-call with a narrower query.
+ */
+const MAX_TOOL_RESULT_CHARS = 8000
+const truncateForLLM = (s: string): string => {
+  if (s.length <= MAX_TOOL_RESULT_CHARS) return s
+  const head = s.slice(0, MAX_TOOL_RESULT_CHARS)
+  return `${head}\n\n[truncated: full result was ${s.length.toLocaleString()} chars. Call with a narrower query if you need the rest.]`
+}
+
+/**
+ * Anthropic allows up to 4 cache_control breakpoints per request. We already
+ * use 2 in system (CLAUDE.md + slash-commands reference). Maintain a single
+ * moving breakpoint on the latest user message's last tool_result so each
+ * subsequent round caches the growing conversation prefix.
+ *
+ * Strips cache_control from any prior user messages before adding it to the
+ * new one so we never exceed the budget.
+ */
+const setMovingMessageCache = (
+  apiMessages: AnthropicMessage[],
+  newResults: ToolResultBlock[],
+): void => {
+  for (const m of apiMessages) {
+    if (m.role !== 'user' || !Array.isArray(m.content)) continue
+    for (const block of m.content as Array<{ cache_control?: unknown }>) {
+      if (block && typeof block === 'object' && 'cache_control' in block) {
+        delete block.cache_control
+      }
+    }
+  }
+  const last = newResults[newResults.length - 1]
+  if (last) last.cache_control = { type: 'ephemeral' }
 }
 
 const NO_PLAN_ERROR =
@@ -280,7 +330,7 @@ export const handleClaude = async (
         toolResults.push({
           type: 'tool_result',
           tool_use_id: callId,
-          content: safeStringify(result),
+          content: truncateForLLM(safeStringify(result)),
         })
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err)
@@ -292,6 +342,7 @@ export const handleClaude = async (
       }
     }
 
+    setMovingMessageCache(apiMessages, toolResults)
     apiMessages.push({ role: 'user', content: toolResults })
   }
 

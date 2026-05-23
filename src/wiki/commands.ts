@@ -1,5 +1,4 @@
 import type { LoadedIngestSource } from './load-source'
-import { WIKI_INGEST_SKILL } from './skills/ingest'
 
 export type WikiCommand =
   | 'ingest'
@@ -56,7 +55,7 @@ ${src.text || '(empty page)'}
     case 'logseq-block':
       return `# Source for this ingest — EXISTING GRAPH BLOCK
 
-The source is a single block (UUID \`${src.blockUuid}\`) inside the graph. Treat the block content as the source material. Decide with the user whether to:
+The source is a single block (UUID \`${src.blockUuid}\`) inside the graph. Decide with the user whether to:
   (a) promote the block's parent page to a \`#Source\` page (see logseq-page handling), or
   (b) create a new \`#Source\` page that summarises this block's content.
 Default to (b) unless the user signals (a).
@@ -88,6 +87,11 @@ ${src.text}
   }
 }
 
+/**
+ * Per-command user-message body. The workflow instructions live in the
+ * cached system prompt (SLASH_COMMANDS_REFERENCE); these messages are
+ * intentionally thin so they don't re-tokenise the workflow on every turn.
+ */
 export const buildCommandPrompt = (
   parsed: ParsedCommand,
   extra?: {
@@ -99,15 +103,9 @@ export const buildCommandPrompt = (
     case 'session-start':
       return `[Slash command: /session-start]
 
-Run the §6 Session Start protocol from the CLAUDE.md schema, using the provided tools:
+Follow the /session-start workflow in your system prompt.
 
-1. Confirm the graph is reachable (get_user_configs is fine — we already know we're connected).
-2. Count pages by each type tag (Source, Concept, Entity, Synthesis, Question) using datascript_query with this query template (substitute each tag):
-   [:find (count ?p) :where [?p :block/tags ?t] [?t :block/title "Source"]]
-3. Find the last 5 calendar days of journal pages by querying :block/journal-day descending and taking the top 5 with ?day ≤ today. For each present day, call get_page_blocks to read a brief overview. Explicitly note any silent days.
-4. Report all five type counts and a one-line summary per journal day, then ask whether I want to ingest, query, or lint.
-
-Pre-fetched context (already retrieved for you):
+Pre-fetched context:
 ${extra?.preFetched ?? '(none)'}
 `
     case 'ingest': {
@@ -116,11 +114,7 @@ ${extra?.preFetched ?? '(none)'}
         : `# Source for this ingest\n\nNo source was loaded. Args: \`${parsed.args}\`. Ask the user what to ingest.`
       return `[Slash command: /ingest ${parsed.args}]
 
-Use the wiki-ingest skill below. Follow it end-to-end. The CLAUDE.md schema for this graph is already loaded in your system prompt — defer to it on anything not covered here.
-
-${WIKI_INGEST_SKILL}
-
----
+Follow the /ingest workflow (Wiki Ingest skill) in your system prompt against the source below. Remember: \`declare_plan\` first, then execute.
 
 ${sourceBlock}
 `
@@ -128,43 +122,19 @@ ${sourceBlock}
     case 'query':
       return `[Slash command: /query ${parsed.args}]
 
-Follow the §8 Query workflow:
-
-a. Use datascript_query and get_page_blocks against the graph — read pages, not raw sources.
-b. Synthesise an answer citing [[Page Name]] references.
-c. If the answer is substantive, offer to file it as a new #Synthesis or #Question page, with the cited pages set as its sources property (resolve_property_ident first).
+Follow the /query workflow in your system prompt.
 
 Question: ${parsed.args}
 `
     case 'lint':
       return `[Slash command: /lint]
 
-Run the §9 Lint pass. Use datascript_query to find:
-- Pages/blocks tagged #Contradiction not yet resolved
-- Pages with zero inbound references (orphans) — query :block/_refs
-- Terms mentioned in many blocks but lacking their own page (implicit concepts)
-- Pages whose sources are superseded by newer #Source pages (stale claims)
-- Open #Question pages a quick web search could close
-- New question candidates spotted while sweeping
-
-For each finding requiring follow-up, propose creating a task with status 'todo' on the Lint Followups page (use insert_block with appropriate properties — never type TODO into block content). Surface findings before doing any writes; wait for my approval on each.
+Follow the /lint workflow in your system prompt.
 `
     case 'lint-seedlings':
       return `[Slash command: /lint-seedlings]
 
-Run the §9a deep Seedling pass:
-
-1. Query all #Seedling blocks.
-2. Per block: read its content. Has a related #Concept / #Entity / #Source emerged since it was written? How old is it?
-3. ACROSS blocks: cluster by theme. Three Seedlings circling the same idea = a real signal — recommend writing a #Synthesis drawing on those.
-
-Per cluster (or notable single block), propose ONE of:
-- Promote to a #Synthesis (most valuable; only when real substance exists).
-- Link by adding [[references]] to existing pages.
-- Merge Seedlings on the same theme into one block.
-- Leave — still incubating.
-
-Posture: PROPOSE, do not autonomously promote. File each recommendation as a task on Lint Followups. I will approve each move. Bias toward "leave it" for ambiguous cases.
+Follow the /lint-seedlings workflow in your system prompt.
 `
   }
 }
