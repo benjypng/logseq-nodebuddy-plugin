@@ -1,4 +1,5 @@
 # logseq-nodebuddy-plugin
+
 ![Version](https://img.shields.io/github/v/release/benjypng/logseq-nodebuddy-plugin?style=flat-square&color=0969da) ![Downloads](https://img.shields.io/github/downloads/benjypng/logseq-nodebuddy-plugin/total?style=flat-square&color=orange) ![License](https://img.shields.io/github/license/benjypng/logseq-nodebuddy-plugin?style=flat-square)
 
 > Your AI NodeBuddy, right inside your graph. Supports cloud and local models, with an opt-in **Wiki Mode** that lets Claude maintain a personal knowledge base for you.
@@ -7,29 +8,33 @@
 
 ## ✨ Features
 
-* **Two modes from a single sidebar:**
-  * **Chat Mode** — quick conversations with rich graph context. Every session is saved as a Logseq page you can resume later.
-  * **Wiki Mode** — Claude operates your graph as a disciplined knowledge-base maintainer using slash commands and tool-calling. Conversation is ephemeral; only the graph writes persist.
-* **Context Injection:** Use `@currentpage`, `@currentweek`, `#tag`, or `[[block reference]]` to pull specific slices of your graph into the prompt.
-* **Per-graph custom instructions:** A `CLAUDE.md` page in your graph becomes the system prompt (cached via Anthropic prompt caching on Claude models).
-* **Local and cloud models:** Anthropic (API key or OAuth), Google Gemini, plus local Ollama/LM Studio endpoints for Gemma and Qwen.
-* **Theming + resizable sidebar:** Drag the left edge to resize; width persists across sessions.
+- **Two modes from a single sidebar:**
+  - **Chat Mode** — quick conversations with rich graph context. Every session is saved as a Logseq page you can resume later.
+  - **Wiki Mode** — Claude operates your graph as a disciplined knowledge-base maintainer using slash commands and tool-calling. Conversation is ephemeral; only the graph writes persist.
+- **Context Injection:** Use `@currentpage`, `@currentweek`, `#tag`, or `[[block reference]]` to pull specific slices of your graph into the prompt.
+- **Per-graph custom instructions:** A `CLAUDE.md` page in your graph becomes the system prompt (cached via Anthropic prompt caching on Claude models).
+- **Local and cloud models:** Anthropic (API key or OAuth), Google Gemini, plus local Ollama/LM Studio endpoints for Gemma and Qwen.
+- **Theming + resizable sidebar:** Drag the left edge to resize; width persists across sessions.
 
 ### Context Injection vs MCP
+
 NodeBuddy relies on **Explicit Context Injection** for Chat Mode and **scoped tool-calling** for Wiki Mode — not the general MCP protocol.
 
-* **Context Injection (Chat Mode):** Triggers like `@currentpage`, `[[block reference]]`, or `#tag` deterministically hand specific slices of your graph to the LLM. Fewer hallucinations, no autonomous browsing.
-* **Tool-calling (Wiki Mode):** Claude is given a narrow set of read/write tools (`get_page`, `datascript_query`, `create_page`, `insert_batch_blocks`, `upsert_page_property`, etc.). Before any writes, Claude must declare a plan; you approve the **whole plan once**, then the plugin tracks each step and emits an authoritative completion banner when the operation ends.
+- **Context Injection (Chat Mode):** Triggers like `@currentpage`, `[[block reference]]`, or `#tag` deterministically hand specific slices of your graph to the LLM. Fewer hallucinations, no autonomous browsing.
+- **Tool-calling (Wiki Mode):** Claude is given a narrow set of read/write tools (`get_page`, `datascript_query`, `create_page`, `insert_batch_blocks`, `upsert_page_property`, etc.). Before any writes, Claude must declare a plan; you approve the **whole plan once**, then the plugin tracks each step and emits an authoritative completion banner when the operation ends.
 
 ### Currently supported models
-* Anthropic: `claude-opus-4-7`, `claude-opus-4-6`, `claude-sonnet-4-6`, `claude-sonnet-4-5-20250929`, `claude-haiku-4-5-20251001` (any Claude model is required for Wiki Mode)
-* Google Gemini: `gemini-2.5-flash`, `gemini-2.5-flash-lite`, `gemini-2.5-flash-pro`, `gemini-3-flash-preview`, `gemini-3-pro-preview`
-* Local (Ollama / LM Studio compatible): `gemma2:27b`, `gemma3:27b`, `gemma4:latest`, `qwen3:8b`
+
+- Anthropic: `claude-opus-4-7`, `claude-opus-4-6`, `claude-sonnet-4-6`, `claude-sonnet-4-5-20250929`, `claude-haiku-4-5-20251001` (any Claude model is required for Wiki Mode)
+- Google Gemini: `gemini-2.5-flash`, `gemini-2.5-flash-lite`, `gemini-2.5-flash-pro`, `gemini-3-flash-preview`, `gemini-3-pro-preview`
+- Local (Ollama / LM Studio compatible): `gemma2:27b`, `gemma3:27b`, `gemma4:latest`, `qwen3:8b`
 
 ## 📸 Screenshots / Demo
+
 ![](./demo.gif)
 
 ## ⚙️ Installation
+
 1. Open Logseq.
 2. Go to the **Marketplace** (Plugins > Marketplace).
 3. Search for **logseq-nodebuddy**.
@@ -38,12 +43,14 @@ NodeBuddy relies on **Explicit Context Injection** for Chat Mode and **scoped to
 ## 🛠 Usage
 
 ### Opening the plugin
-* Command palette (`Mod+Shift+P`) → `NodeBuddy: Toggle Sidebar`, or
-* Keyboard shortcut: `Mod+Shift+N`.
+
+- Command palette (`Mod+Shift+P`) → `NodeBuddy: Toggle Sidebar`, or
+- Keyboard shortcut: `Mod+Shift+N`.
 
 The sidebar opens on the right; drag its left edge to resize.
 
 ### Chat Mode
+
 Pick **Start new chat** (or **Name it yourself**, or resume an existing chat) from the home screen.
 
 1. **Page Context** — type `@currentpage` to inject the current page (or zoomed block).
@@ -54,9 +61,11 @@ Pick **Start new chat** (or **Name it yourself**, or resume an existing chat) fr
 Each Chat Mode session creates a Logseq page tagged with your configured session tag (default `NodeBuddy`). Don't manually edit these pages — the plugin uses them to rehydrate conversations on reopen.
 
 ### Wiki Mode
+
 Wiki Mode turns NodeBuddy into a maintainer for a personal LLM wiki (Karpathy-style: source pages, concept pages, syntheses, questions, etc.) driven by **your own** `CLAUDE.md` page in the graph.
 
 **Setup:**
+
 1. Create a page titled `CLAUDE.md` in your graph and describe your schema — page types, properties, workflows, hard rules. This page becomes the cached system prompt. Don't skip this — the **Start Wiki Mode** button is disabled until `CLAUDE.md` has content.
 2. Select a Claude model in plugin settings (Wiki Mode requires tool-calling).
 3. From the home screen, click **Start Wiki Mode**.
@@ -71,7 +80,7 @@ Wiki Mode turns NodeBuddy into a maintainer for a personal LLM wiki (Karpathy-st
 ````markdown
 # vaulty — Personal LLM Wiki (Schema)
 
-This file is the **schema layer** of an LLM-maintained personal wiki, in the sense of Karpathy's *LLM Wiki* pattern. The graph `vaulty` is a Logseq DB graph (not a folder of markdown files). This file tells the LLM how to operate as its disciplined maintainer rather than a generic chatbot.
+This file is the **schema layer** of an LLM-maintained personal wiki, in the sense of Karpathy's _LLM Wiki_ pattern. The graph `vaulty` is a Logseq DB graph (not a folder of markdown files). This file tells the LLM how to operate as its disciplined maintainer rather than a generic chatbot.
 
 If you are an LLM agent (Claude Code, Codex, etc.) opening this directory: **read this file in full before doing anything else.** The conventions here are non-negotiable.
 
@@ -144,20 +153,25 @@ logseq upsert page -g vaulty --page "PM as Clarity Creator" \
 At the start of every session:
 
 **a. Confirm graph reachable.**
+
 ```
 logseq graph info -g vaulty
 ```
 
 **b. Count pages by type.** Use this canonical Datascript query (substitute each of `Source`, `Concept`, `Entity`, `Synthesis`, `Question`):
+
 ```
 logseq query -g vaulty --query '[:find (count ?p) :where [?p :block/tags ?t] [?t :block/title "Source"]]'
 ```
+
 Report all five totals so they're comparable across sessions.
 
-**c. Summarise the last 5 *calendar* days of journal activity** (not the 5 most-recently-edited journals — that misses days you didn't touch and skews recall). Journal pages carry `:block/journal-day` as an integer `YYYYMMDD`. Query the 5 highest values ≤ today, then `logseq show --page "<title>" --level 3` for each. Example:
+**c. Summarise the last 5 _calendar_ days of journal activity** (not the 5 most-recently-edited journals — that misses days you didn't touch and skews recall). Journal pages carry `:block/journal-day` as an integer `YYYYMMDD`. Query the 5 highest values ≤ today, then `logseq show --page "<title>" --level 3` for each. Example:
+
 ```
 logseq query -g vaulty --query '[:find ?title ?day :where [?p :block/journal-day ?day] [?p :block/title ?title]]'
 ```
+
 Sort the result by `?day` descending, take the top 5 with `?day ≤ <today as YYYYMMDD>`, then `show` each. Use `logseq show`, not `list page`, for journal content — `show` returns the block tree; `list page` only returns metadata.
 
 If a calendar day in the last 5 has no journal page, say so explicitly — silence on that day is itself a signal.
@@ -246,6 +260,7 @@ What this pass does:
 3. **Across blocks (the highest-value move):** cluster by theme. Three Seedlings circling the same idea = the idea is real, and the recommendation is "write a `#Synthesis` drawing on these three." This clustering is the move you can't do block-by-block; it only works when the whole queue is read at once.
 
 Per cluster (or notable single block), propose one of:
+
 - **Promote** to a `#Synthesis` (most valuable; only when there's real substance).
 - **Link** by adding `[[references]]` to existing pages — the connection is now obvious.
 - **Merge** Seedlings on the same theme into a single block, or fold them into the new Synthesis.
@@ -259,12 +274,7 @@ Per cluster (or notable single block), propose one of:
 
 Mirrored on the `Focus Areas` page.
 
-1. Spirituality
-2. Leadership
-3. Organisational Development
-4. Digital Transformation
-5. Social Work
-6. Product Management
+[INSERT FOCUS AREAS HERE]
 
 ## 11. Overview page
 
@@ -295,7 +305,7 @@ Corrections from earlier sessions, recorded so they're not relearned:
 - **Property idents are stable per graph but unique per property** — the ident contains a random suffix (e.g. `sources-Hh35PH44`). Always look them up with `logseq search property -c "<name>"` rather than guessing.
 - **`log.md`** in Karpathy's pattern is replaced by the Logseq daily journal — no separate log page is needed.
 - **For broad codebase or graph exploration**, prefer `logseq query` (Datascript) over many small list/show commands.
-- **Journal sort order:** `logseq list page --journal-only` defaults to `updated-at` sort, which gives *activity-recent*, not *calendar-recent*. The CLI has no `--sort date` option. For calendar order, query `:block/journal-day` directly (see §6c).
+- **Journal sort order:** `logseq list page --journal-only` defaults to `updated-at` sort, which gives _activity-recent_, not _calendar-recent_. The CLI has no `--sort date` option. For calendar order, query `:block/journal-day` directly (see §6c).
 - **`list page` vs `show`:** `list page` is for metadata (titles, timestamps, fields). `show` is for content (block tree). Don't use `list page` when you want to read what's on a page.
 
 ## 14. The point of all this
@@ -308,17 +318,18 @@ Operate accordingly.
 </details>
 
 **What's different from Chat Mode:**
-* The conversation is **state-only** and disappears when the sidebar closes — no Logseq page is created or written for the chat itself.
-* The session opens with a greeting bubble listing the available slash commands. The textarea highlights and shows a chip when you type a recognised command (red chip if the command is unknown).
-* Slash commands are enabled:
 
-| Command | What it does |
-|---|---|
-| `/session-start` | Snapshot of your graph: page counts by type and the last 5 calendar days of journal activity. Run it manually whenever you want a fresh snapshot. |
-| `/ingest <source>` | Walks the wiki-ingest workflow: summarise → propose pages → on your approval, write the `#Source` page plus seeded `#Concept` / `#Entity` / `#Question` pages and update the `Index`. `<source>` can be: a URL (auto-fetched), `[[Page Name]]` or `page:Some Page` or a page UUID (promotes the existing graph page in place — keeps its title, adds `#Source` tag + properties), `block:<uuid>` (treats a block subtree as source), or pasted text. |
-| `/query <question>` | Answers from your graph (not raw sources), citing `[[Page Name]]` references; offers to file substantive answers as `#Synthesis`. |
-| `/lint` | Health check — orphans, contradictions, stale claims, implicit concepts; files findings as tasks on `Lint Followups`. |
-| `/lint-seedlings` | Deeper pass over `#Seedling` blocks: clusters them by theme and proposes Promote / Link / Merge / Leave for each. |
+- The conversation is **state-only** and disappears when the sidebar closes — no Logseq page is created or written for the chat itself.
+- The session opens with a greeting bubble listing the available slash commands. The textarea highlights and shows a chip when you type a recognised command (red chip if the command is unknown).
+- Slash commands are enabled:
+
+| Command             | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/session-start`    | Snapshot of your graph: page counts by type and the last 5 calendar days of journal activity. Run it manually whenever you want a fresh snapshot.                                                                                                                                                                                                                                                                                                    |
+| `/ingest <source>`  | Walks the wiki-ingest workflow: summarise → propose pages → on your approval, write the `#Source` page plus seeded `#Concept` / `#Entity` / `#Question` pages and update the `Index`. `<source>` can be: a URL (auto-fetched), `[[Page Name]]` or `page:Some Page` or a page UUID (promotes the existing graph page in place — keeps its title, adds `#Source` tag + properties), `block:<uuid>` (treats a block subtree as source), or pasted text. |
+| `/query <question>` | Answers from your graph (not raw sources), citing `[[Page Name]]` references; offers to file substantive answers as `#Synthesis`.                                                                                                                                                                                                                                                                                                                    |
+| `/lint`             | Health check — orphans, contradictions, stale claims, implicit concepts; files findings as tasks on `Lint Followups`.                                                                                                                                                                                                                                                                                                                                |
+| `/lint-seedlings`   | Deeper pass over `#Seedling` blocks: clusters them by theme and proposes Promote / Link / Merge / Leave for each.                                                                                                                                                                                                                                                                                                                                    |
 
 **Plan-gated approval (the only approval prompt you get):**
 
@@ -326,21 +337,23 @@ Operate accordingly.
 2. **Approve plan** unlocks all writes for the rest of the operation — no further prompts. **Reject** sends the rejection back to Claude so it can revise and re-declare (or stop).
 3. Each step in the plan checklist updates live (○ pending → ◐ running → ✓ done / ✕ failed / – skipped) as Claude calls `mark_plan_step` after finishing each one.
 4. Individual tool calls still appear as collapsible status cards below the plan, so you can see exactly what was attempted — but with no buttons.
-5. When the tool-use loop ends, the plugin emits an authoritative **completion banner** generated from the plan state, not from Claude's text: *"Operation complete: 8/8 steps ✅"* or *"Operation finished: 6/8 ✅, 1 ❌, 1 not marked"* with per-step details. You don't have to trust the model's closing summary.
+5. When the tool-use loop ends, the plugin emits an authoritative **completion banner** generated from the plan state, not from Claude's text: _"Operation complete: 8/8 steps ✅"_ or _"Operation finished: 6/8 ✅, 1 ❌, 1 not marked"_ with per-step details. You don't have to trust the model's closing summary.
 
 Writes attempted without an approved plan are blocked with an inline "blocked" card and Claude is told to declare a plan first.
 
 ### Settings
+
 `Logseq Settings > Plugin Settings > NodeBuddy`:
 
-* **Gemini API Key** — Google Gemini cloud access.
-* **Anthropic API Key or OAuth Token** — accepts a standard API key or a Claude Code OAuth token (auto-detected).
-* **Local Model Endpoint** — OpenAI-compatible endpoint for Gemma / Qwen (default `http://localhost:1234/v1/chat/completions`).
-* **Model** — the active model. Wiki Mode requires a `claude-…` selection.
-* **NodeBuddy Page Tag** — tag used to identify Chat Mode session pages (default `NodeBuddy`).
-* **Sidebar Width** — pixel width of the sidebar; also adjustable by dragging the left edge.
+- **Gemini API Key** — Google Gemini cloud access.
+- **Anthropic API Key or OAuth Token** — accepts a standard API key or a Claude Code OAuth token (auto-detected).
+- **Local Model Endpoint** — OpenAI-compatible endpoint for Gemma / Qwen (default `http://localhost:1234/v1/chat/completions`).
+- **Model** — the active model. Wiki Mode requires a `claude-…` selection.
+- **NodeBuddy Page Tag** — tag used to identify Chat Mode session pages (default `NodeBuddy`).
+- **Sidebar Width** — pixel width of the sidebar; also adjustable by dragging the left edge.
 
 ## ☕️ Support
+
 If you enjoy this plugin, please consider supporting the development.
 
 <div align="center">
@@ -348,4 +361,5 @@ If you enjoy this plugin, please consider supporting the development.
 </div>
 
 ## 🤝 Contributing
+
 Issues are welcome. If you find a bug, please open an issue. Pull requests are not accepted at the moment as I am not able to commit to reviewing them in a timely fashion.
