@@ -326,10 +326,13 @@ export const resolvePropertyIdent = async (
 ): Promise<string | null> => {
   const cached = identCache.get(humanName)
   if (cached) return cached
+  const needle = humanName.toLowerCase()
   const prefix = `:user.property/${humanName}-`
   try {
+    // Case-insensitive title match — :block/title preserves casing, so
+    // lowercase both sides before comparing.
     const result = await datascriptQuery<[string][]>(
-      `[:find ?ident :where [?p :db/ident ?ident] [?p :block/title ?title] [(= ?title "${humanName.replace(/"/g, '\\"')}")]]`,
+      `[:find ?ident :where [?p :db/ident ?ident] [?p :block/title ?title] [(clojure.string/lower-case ?title) ?lower] [(= ?lower "${needle.replace(/"/g, '\\"')}")]]`,
     )
     const ident = result?.[0]?.[0]
     if (ident && typeof ident === 'string') {
@@ -476,7 +479,20 @@ export const tools: ToolRegistry = {
   ),
   datascript_query: tool(
     'datascript_query',
-    'Run a Datascript query against the Logseq DB. Pass the query as an EDN string, e.g. "[:find (count ?p) :where [?p :block/tags ?t] [?t :block/title \\"Source\\"]]".',
+    `Run a Datascript query against the Logseq DB. Pass the query as an EDN string, e.g. "[:find (count ?p) :where [?p :block/tags ?t] [?t :block/title \\"Source\\"]]".
+
+This graph is the DB version of Logseq (not the file version). Several attributes you may have seen in older Logseq docs are GONE or work differently — using them will either error or silently return nothing:
+
+- Block text: \`:block/title\` (NOT \`:block/content\` — removed in DB).
+- Page name with casing: \`:block/title\` (NOT \`:block/original-name\` — renamed). \`:block/name\` is the lowercase index.
+- Task status: ref chain via \`:logseq.property/status\` → \`:block/title "Todo"|"Doing"|"Done"\`. \`:block/marker\` is removed.
+- Scheduled / deadline dates: do NOT use \`[?b :logseq.property/scheduled ?d]\` in :where (Query Error). Use the ref chain: \`[?b :block/refs ?ref] [?ref :block/journal-day ?d]\`, then add \`:result-transform (fn [r] (distinct r))\` because :block/refs catches all refs on the block.
+- Journal day: \`:block/journal-day\` (YYYYMMDD integer). \`:page/journal-day\` is removed.
+- Tags: ref chain \`[?b :block/tags ?t] [?t :block/title "TagName"]\` — or for rename-stable lookups, \`[?t :db/ident :logseq.class/Task]\`.
+- Created/updated timestamps: \`:logseq.property/created-at\` / \`:logseq.property/updated-at\` (NOT \`:block/created-at\`).
+- User-defined properties have stable idents like \`:user.property/<name>-<hash>\` — resolve via resolve_property_ident, do not guess the hash.
+
+If a query returns unexpectedly empty, suspect a file-graph attribute snuck in. Use \`(pull ?b [*])\` on a sample entity to see what attributes it actually has.`,
     {
       type: 'object',
       properties: { query: { type: 'string' } },
