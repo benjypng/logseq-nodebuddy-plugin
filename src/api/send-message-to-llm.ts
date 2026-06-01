@@ -2,7 +2,7 @@ import { dropWhile } from 'lodash'
 
 import type { ChatMessage, ToolCallCallbacks } from '../types'
 import { getModelNameFromSettings } from '../utils'
-import { handleClaude, handleGemini, handleGemma, handleQwen } from '.'
+import { handleClaude, handleGemini, handleOpenAICompatible } from '.'
 
 export interface SendMessageOptions {
   wikiMode?: boolean
@@ -34,9 +34,15 @@ export const sendMessageToLLM = async (
   }
 
   if (model.startsWith('gemma')) {
-    return await handleGemma(validMessages)
+    return await handleOpenAICompatible(validMessages, {
+      label: 'Local Gemma',
+      connectionErrorMessage:
+        "Error: Could not connect to Ollama. Make sure it's running.",
+    })
   } else if (model.startsWith('qwen')) {
-    return await handleQwen(validMessages)
+    return await handleOpenAICompatible(validMessages, { label: 'Qwen' })
+  } else if (model.startsWith('deepseek')) {
+    return await handleOpenAICompatible(validMessages, { label: 'DeepSeek' })
   } else if (isClaude) {
     return await handleClaude(validMessages, {
       wikiMode: options.wikiMode,

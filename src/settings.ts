@@ -16,6 +16,13 @@ export const settings: SettingSchemaDesc[] = [
     description: 'Enter your Anthropic API key.',
   },
   {
+    key: 'deepseekApiKey',
+    type: 'string',
+    default: '',
+    title: 'DeepSeek API Key',
+    description: 'Enter your DeepSeek API Key.',
+  },
+  {
     key: 'localEndpoint',
     type: 'string',
     default: 'http://localhost:1234/v1/chat/completions',
@@ -42,6 +49,8 @@ export const settings: SettingSchemaDesc[] = [
       'claude-opus-4-7',
       'claude-opus-4-6',
       'claude-sonnet-4-6',
+      'deepseek-v4-pro',
+      'deepseek-v4-flash',
       'qwen3:8b',
     ],
     enumPicker: 'select',

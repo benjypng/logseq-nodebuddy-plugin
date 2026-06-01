@@ -3,7 +3,15 @@ import { ChatMessage, OllamaResponse } from '../types'
 import { formatPromptWithContext, getModelNameFromSettings } from '../utils'
 import { api } from '.'
 
-export const handleQwen = async (messages: ChatMessage[]) => {
+interface OpenAICompatibleOptions {
+  label: string
+  connectionErrorMessage?: string
+}
+
+export const handleOpenAICompatible = async (
+  messages: ChatMessage[],
+  { label, connectionErrorMessage }: OpenAICompatibleOptions,
+) => {
   try {
     const scaffoldPrompt = await getScaffoldPrompt()
     const response = await api()
@@ -24,7 +32,14 @@ export const handleQwen = async (messages: ChatMessage[]) => {
       .json<OllamaResponse>()
     return response.choices?.[0]?.message?.content || ''
   } catch (error) {
-    console.error('[NodeBuddy] Qwen Error:', error)
+    console.error(`[NodeBuddy] ${label} Error:`, error)
+    if (
+      connectionErrorMessage &&
+      error instanceof Error &&
+      error.message.includes('Failed to fetch')
+    ) {
+      return connectionErrorMessage
+    }
     throw error
   }
 }

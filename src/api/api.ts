@@ -3,6 +3,7 @@ import wretch from 'wretch'
 import { getModelNameFromSettings } from '../utils'
 import {
   getAnthropicApiKeyFromSettings,
+  getDeepseekApiKeyFromSettings,
   getGeminiApiKeyFromSettings,
   getGeminiUrl,
   getLocalEndpointFromSettings,
@@ -33,6 +34,17 @@ export const api = () => {
       .headers({
         'Content-Type': 'application/json',
         Authorization: 'Bearer local',
+      })
+      .catcherFallback((error) => {
+        console.error('[NodeBuddy] API Error:', error)
+        throw error
+      })
+  } else if (model.startsWith('deepseek')) {
+    return wretch()
+      .url('https://api.deepseek.com/chat/completions')
+      .headers({
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${getDeepseekApiKeyFromSettings()}`,
       })
       .catcherFallback((error) => {
         console.error('[NodeBuddy] API Error:', error)
