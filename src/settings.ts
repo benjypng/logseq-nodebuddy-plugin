@@ -64,11 +64,19 @@ export const settings: SettingSchemaDesc[] = [
       'NodeBuddy chat histories are stored on pages in the graph. Indicate the tag used for these pages.',
   },
   {
-    key: 'sidebarWidth',
+    key: 'popupWidth',
     type: 'number',
     default: 400,
-    title: 'Sidebar Width',
+    title: 'Popup Width',
     description:
-      'Width of the NodeBuddy sidebar in pixels. You can also drag the left edge to resize.',
+      'Width of the NodeBuddy popup in pixels. You can also drag the top-left corner to resize.',
+  },
+  {
+    key: 'popupHeight',
+    type: 'number',
+    default: 600,
+    title: 'Popup Height',
+    description:
+      'Height of the NodeBuddy popup in pixels. You can also drag the top-left corner to resize.',
   },
 ]
