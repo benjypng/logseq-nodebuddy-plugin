@@ -36,8 +36,7 @@
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.69.0",
     "react-markdown": "^10.1.0",
-    "remark-gfm": "^4.0.1",
-    "wretch": "^3.0.6"
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.11",

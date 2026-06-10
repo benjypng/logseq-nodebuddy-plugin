@@ -2,7 +2,12 @@ import { BlockEntity } from '@logseq/libs/dist/LSPlugin'
 
 import { getPageBlocks } from './mcp'
 
-const CLAUDE_MD_PAGE = logseq.settings?.claudeMdPage as string
+// Read at call time, not module load: at import time `logseq.settings` is not
+// yet populated, so capturing it in a top-level const yields `undefined`
+// permanently. Fall back to the schema default to stay robust if the setting
+// is somehow unset.
+const getClaudeMdPage = (): string =>
+  (logseq.settings?.claudeMdPage as string) || 'CLAUDE.md'
 
 const flattenBlocks = (blocks: BlockEntity[], depth = 0): string => {
   const lines: string[] = []
@@ -23,7 +28,7 @@ const flattenBlocks = (blocks: BlockEntity[], depth = 0): string => {
 
 export const getClaudeMdInstructions = async (): Promise<string> => {
   try {
-    const blocks = await getPageBlocks(CLAUDE_MD_PAGE)
+    const blocks = await getPageBlocks(getClaudeMdPage())
     if (!blocks || blocks.length === 0) return ''
     return flattenBlocks(blocks).trim()
   } catch {
