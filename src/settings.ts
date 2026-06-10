@@ -80,4 +80,19 @@ export const settings: SettingSchemaDesc[] = [
     description:
       'Height of the NodeBuddy popup in pixels. You can also drag the top-left corner to resize.',
   },
+  {
+    key: 'claudeMdPageHeader',
+    type: 'heading',
+    default: '',
+    title: 'Wiki Mode Settings',
+    description: 'The following settings only apply to Wiki Mode.',
+  },
+  {
+    key: 'claudeMdPage',
+    type: 'string',
+    default: 'CLAUDE.md',
+    title: 'CLAUDE.md Page',
+    description:
+      'Page name where the CLAUDE.md can be found. The page should only have a single block that is a markdown code-block containing the CLAUDE.md text.',
+  },
 ]

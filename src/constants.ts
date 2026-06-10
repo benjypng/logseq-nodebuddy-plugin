@@ -2,7 +2,7 @@ import { BlockEntity } from '@logseq/libs/dist/LSPlugin'
 
 import { getPageBlocks } from './mcp'
 
-const CLAUDE_MD_PAGE = 'CLAUDE.md'
+const CLAUDE_MD_PAGE = logseq.settings?.claudeMdPage as string
 
 const flattenBlocks = (blocks: BlockEntity[], depth = 0): string => {
   const lines: string[] = []
