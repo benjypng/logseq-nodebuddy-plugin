@@ -5,7 +5,7 @@ import remarkGfm from 'remark-gfm'
 
 import { MessageBubbleProps } from '../types'
 import { PlanCard } from './PlanCard'
-import { ToolCallCard } from './ToolCallCard'
+import { ToolCallGroup } from './ToolCallGroup'
 
 export const MessageBubble = ({ msg, onPlanDecide }: MessageBubbleProps) => {
   const { role, content, context, toolCalls, plan } = msg
@@ -46,11 +46,7 @@ export const MessageBubble = ({ msg, onPlanDecide }: MessageBubbleProps) => {
         {plan && <PlanCard plan={plan} onDecide={onPlanDecide} />}
 
         {toolCalls && toolCalls.length > 0 && (
-          <div className="nb-tool-calls">
-            {toolCalls.map((call) => (
-              <ToolCallCard key={call.id} call={call} />
-            ))}
-          </div>
+          <ToolCallGroup calls={toolCalls} />
         )}
       </div>
 

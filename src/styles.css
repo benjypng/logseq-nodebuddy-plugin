@@ -1029,6 +1029,53 @@ body,
   border: 1px solid var(--nb-accent, #4c8bf5);
 }
 
+.nb-tool-group {
+  margin-top: 8px;
+  border: 1px solid var(--nb-border, rgba(120, 120, 120, 0.25));
+  border-radius: 6px;
+  background: var(--nb-bg-subtle, rgba(120, 120, 120, 0.06));
+}
+.nb-tool-group--running {
+  border-color: #4c8bf5;
+}
+.nb-tool-group--completed {
+  border-color: #2e7d32;
+}
+.nb-tool-group--errored {
+  border-color: #c62828;
+}
+.nb-tool-group__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 6px 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--nb-text-secondary, #888);
+  font-size: 12px;
+  text-align: left;
+}
+.nb-tool-group__label {
+  flex: 1;
+  font-weight: 500;
+  color: var(--nb-text, inherit);
+}
+.nb-tool-group__spinner {
+  animation: nb-spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes nb-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.nb-tool-group .nb-tool-calls {
+  margin-top: 0;
+  padding: 0 8px 8px;
+}
+
 .nb-tool-calls {
   display: flex;
   flex-direction: column;
