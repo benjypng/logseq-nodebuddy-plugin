@@ -35,6 +35,11 @@ export const NodeBuddyContainer = () => {
     setWikiModeState(enabled)
     if (enabled) setPageState(null)
   }
+  // Leave the active chat / wiki session and return to the New Chat screen.
+  const goHome = () => {
+    setPageState(null)
+    setWikiModeState(false)
+  }
   const [isResizing, setIsResizing] = useState(false)
   const dragRef = useRef({
     startScreenX: 0,
@@ -161,7 +166,11 @@ export const NodeBuddyContainer = () => {
             />
           </>
         )}
-        <WindowControls windowState={windowState} />
+        <WindowControls
+          windowState={windowState}
+          showNewChat={!!(page || wikiMode)}
+          onNewChat={goHome}
+        />
         <LogseqPageContext.Provider
           value={{ page, setPage, wikiMode, setWikiMode }}
         >

@@ -73,10 +73,6 @@ export const WINDOW_FRAME_STYLE = `
     overflow: hidden !important;
     background: transparent !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28) !important;
-    transition:
-      width 180ms ease,
-      height 180ms ease,
-      border-radius 180ms ease !important;
   }
   ${WRAPPER}.nb-frame-min {
     width: ${FAB_SIZE}px !important;
@@ -90,8 +86,10 @@ export const WINDOW_FRAME_STYLE = `
     border-radius: 12px !important;
   }
   ${WRAPPER}.nb-frame-max {
-    width: calc(100vw - ${POPUP_MARGIN * 2}px) !important;
-    height: calc(100vh - ${POPUP_MARGIN * 2}px) !important;
+    right: ${POPUP_MARGIN * 2}px !important;
+    bottom: ${POPUP_MARGIN * 2}px !important;
+    width: calc(100vw - ${POPUP_MARGIN * 4}px) !important;
+    height: calc(100vh - ${POPUP_MARGIN * 4}px) !important;
     border-radius: 12px !important;
   }
   ${WRAPPER} iframe {

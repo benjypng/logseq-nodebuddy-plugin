@@ -169,7 +169,7 @@ body,
   transform: scale(0.96);
 }
 
-/* ── Window controls (minimise / maximise) ────────────────── */
+/* ── Window controls (new chat / minimise / maximise) ─────── */
 .nb-window-controls {
   position: absolute;
   top: 8px;
@@ -177,15 +177,6 @@ body,
   z-index: 40;
   display: flex;
   gap: 2px;
-}
-
-/*
- * In maximised mode the popup spans to the top of the screen, where Logseq's
- * Electron title bar is a native drag region that swallows clicks regardless
- * of z-index. Push the controls down so they clear that strip.
- */
-.nb-container--maximised .nb-window-controls {
-  top: 52px;
 }
 
 .nb-window-controls__btn {
@@ -210,9 +201,9 @@ body,
   color: var(--nb-text);
 }
 
-/* Reserve top-right space so the chat header's actions clear the controls. */
+/* Reserve top-right space so the header title clears the window controls. */
 .nb-container .nb-header {
-  padding-right: 64px;
+  padding-right: 100px;
 }
 
 /* ── Scrollbar ────────────────────────────────────────────── */
@@ -267,7 +258,10 @@ body,
 .nb-header__title-group {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 2px;
+  flex: 1;
+  min-width: 0;
 }
 
 .nb-header__title {
@@ -288,9 +282,45 @@ body,
   line-height: 1.5;
 }
 
-.nb-header__actions {
-  display: flex;
+/* Chat name / wiki indicator, shown below the model badge. */
+.nb-header__context {
+  display: inline-flex;
+  align-items: center;
   gap: 4px;
+  margin-top: 3px;
+  padding: 2px 6px;
+  max-width: 100%;
+  font-size: 11px;
+  font-weight: 500;
+  border: none;
+  border-radius: var(--nb-radius-sm);
+  background: transparent;
+  color: var(--nb-text-secondary);
+  cursor: pointer;
+  transition:
+    background-color var(--nb-transition),
+    color var(--nb-transition);
+}
+
+.nb-header__context:hover {
+  background-color: var(--nb-hover-bg);
+  color: var(--nb-text);
+}
+
+.nb-header__context-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nb-header__context--wiki {
+  color: var(--nb-accent);
+  cursor: default;
+}
+
+.nb-header__context--wiki:hover {
+  background: transparent;
+  color: var(--nb-accent);
 }
 
 .nb-header__btn {
