@@ -169,6 +169,7 @@ export const NewChat = () => {
                         onKeyDown={(e) => {
                           if (e.key === 'Escape') {
                             e.preventDefault()
+                            e.stopPropagation()
                             setNamingMode(false)
                           }
                         }}

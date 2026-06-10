@@ -75,25 +75,6 @@ export const ChatBox = () => {
   }, [page, wikiMode])
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        logseq.toggleMainUI()
-        return
-      }
-      if (
-        (e.metaKey || e.ctrlKey) &&
-        e.shiftKey &&
-        e.key.toLowerCase() === 'n'
-      ) {
-        e.preventDefault()
-        logseq.toggleMainUI()
-      }
-    }
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [])
-
-  useEffect(() => {
     viewport.current?.scrollTo({
       top: viewport.current.scrollHeight,
       behavior: 'smooth',
