@@ -27,6 +27,7 @@
     ]
   },
   "dependencies": {
+    "@benjypng/logseq-request": "^1.0.0",
     "@logseq/libs": "^0.2.10",
     "@tabler/icons-react": "^3.36.1",
     "@types/lodash": "^4.17.21",
