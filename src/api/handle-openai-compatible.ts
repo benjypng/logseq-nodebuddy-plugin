@@ -1,3 +1,5 @@
+import { ProxyUnavailableError } from '@benjypng/logseq-request'
+
 import { getScaffoldPrompt } from '../constants'
 import { ChatMessage, OllamaResponse } from '../types'
 import { formatPromptWithContext, getModelNameFromSettings } from '../utils'
@@ -33,11 +35,7 @@ export const handleOpenAICompatible = async (
     return response.choices?.[0]?.message?.content || ''
   } catch (error) {
     console.error(`[NodeBuddy] ${label} Error:`, error)
-    if (
-      connectionErrorMessage &&
-      error instanceof Error &&
-      error.message.includes('Failed to fetch')
-    ) {
+    if (connectionErrorMessage && error instanceof ProxyUnavailableError) {
       return connectionErrorMessage
     }
     throw error
