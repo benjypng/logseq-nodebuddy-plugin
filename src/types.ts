@@ -1,4 +1,3 @@
-import { PageEntity } from '@logseq/libs/dist/LSPlugin'
 import { Dispatch, SetStateAction } from 'react'
 
 export type NodeBuddyModels =
@@ -11,19 +10,8 @@ export type NodeBuddyModels =
   | 'claude-haiku-4-5-20251001'
   | 'qwen3:8b'
 
-export interface LogseqPageContextInterface {
-  page: PageEntity | null
-  setPage: (page: PageEntity | null) => void
-  wikiMode: boolean
-  setWikiMode: (enabled: boolean) => void
-}
-
 export interface ChatFormValues {
   prompt: string
-}
-
-export interface NewPageFormValues {
-  title: string
 }
 
 export type MessageRole = 'user' | 'buddy'
@@ -102,50 +90,6 @@ export interface ToolCallCallbacks {
   awaitDecision: (id: string) => Promise<ToolDecision>
 }
 
-export interface GeminiResponse {
-  candidates?: {
-    content: {
-      parts: { text: string }[]
-    }
-  }[]
-  error?: {
-    code: number
-    message: string
-    status: string
-  }
-}
-
-export interface GemmaResponse {
-  model: string
-  created_at: string
-  message: {
-    role: 'assistant' | 'user' | 'system'
-    content: string
-    images?: string[] | null
-  }
-  done: boolean
-}
-
-export interface OllamaResponse {
-  id: string
-  object: string
-  created: number
-  model: string
-  choices: {
-    index: number
-    message: {
-      role: string
-      content: string
-    }
-    finish_reason: string
-  }[]
-  usage: {
-    prompt_tokens: number
-    completion_tokens: number
-    total_tokens: number
-  }
-}
-
 export type ClaudeContentBlock =
   | { type: 'text'; text: string }
   | { type: 'tool_use'; id: string; name: string; input: unknown }
@@ -188,12 +132,4 @@ export interface UserInputProps {
 
 export interface VisibilityProps {
   visible: boolean
-}
-
-export interface NewChatProps {
-  setPage: Dispatch<SetStateAction<PageEntity | undefined>>
-}
-
-export interface ChatBoxProps {
-  page: PageEntity
 }

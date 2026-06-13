@@ -1,4 +1,3 @@
-import { PageEntity } from '@logseq/libs/dist/LSPlugin'
 import {
   useCallback,
   useEffect,
@@ -7,13 +6,11 @@ import {
   useSyncExternalStore,
 } from 'react'
 
-import { ChatBox } from './ChatBox'
-import { NewChat, NodeBuddyFab, WindowControls } from './components'
-import {
-  type ColorScheme,
-  ColorSchemeContext,
-  LogseqPageContext,
-} from './hooks'
+import { ChatBox, createGreetingMessages } from './ChatBox'
+import { NodeBuddyFab, WindowControls } from './components'
+import { type ColorScheme, ColorSchemeContext } from './hooks'
+import type { ChatMessage } from './types'
+import { clearPendingDecisions } from './wiki'
 import { windowStore } from './window-state'
 
 export const NodeBuddyContainer = () => {
@@ -22,24 +19,28 @@ export const NodeBuddyContainer = () => {
     windowStore.getState,
   )
 
-  const [page, setPageState] = useState<PageEntity | null>(null)
-  const [wikiMode, setWikiModeState] = useState<boolean>(false)
   const [colorScheme, setColorScheme] = useState<ColorScheme>('light')
+  // The conversation lives here, not in ChatBox, so it survives minimise (which
+  // unmounts ChatBox) and only dies when this iframe is torn down (Logseq
+  // closes). "New conversation" is the explicit reset.
+  const [messages, setMessages] = useState<ChatMessage[]>(
+    createGreetingMessages,
+  )
+  // Bumping this remounts ChatBox for a clean slate (form input, scroll,
+  // CLAUDE.md re-check) on reset.
+  const [sessionId, setSessionId] = useState(0)
+  const newConversation = () => {
+    clearPendingDecisions()
+    setMessages(createGreetingMessages())
+    setSessionId((n) => n + 1)
+  }
 
-  // Choosing a page exits wiki mode; entering wiki mode clears any page.
-  const setPage = (next: PageEntity | null) => {
-    setPageState(next)
-    if (next) setWikiModeState(false)
-  }
-  const setWikiMode = (enabled: boolean) => {
-    setWikiModeState(enabled)
-    if (enabled) setPageState(null)
-  }
-  // Leave the active chat / wiki session and return to the New Chat screen.
-  const goHome = () => {
-    setPageState(null)
-    setWikiModeState(false)
-  }
+  // Clear any stale pending plan-approval on first load only — NOT on every
+  // restore-from-minimise (that would wipe a decision the user left pending).
+  useEffect(() => {
+    clearPendingDecisions()
+  }, [])
+
   const [isResizing, setIsResizing] = useState(false)
   const dragRef = useRef({
     startScreenX: 0,
@@ -168,15 +169,14 @@ export const NodeBuddyContainer = () => {
         )}
         <WindowControls
           windowState={windowState}
-          showNewChat={!!(page || wikiMode)}
-          onNewChat={goHome}
+          showNewChat={true}
+          onNewChat={newConversation}
         />
-        <LogseqPageContext.Provider
-          value={{ page, setPage, wikiMode, setWikiMode }}
-        >
-          {!page && !wikiMode && <NewChat />}
-          {(page || wikiMode) && <ChatBox />}
-        </LogseqPageContext.Provider>
+        <ChatBox
+          key={sessionId}
+          messages={messages}
+          setMessages={setMessages}
+        />
       </div>
     </ColorSchemeContext.Provider>
   )

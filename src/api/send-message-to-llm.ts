@@ -2,21 +2,33 @@ import { dropWhile } from 'lodash'
 
 import type { ChatMessage, ToolCallCallbacks } from '../types'
 import { getModelNameFromSettings } from '../utils'
-import { handleClaude, handleGemini, handleOpenAICompatible } from '.'
+import { getAnthropicApiKeyFromSettings, isAnthropicOAuthToken } from '.'
+import { AnthropicAdapter } from './adapters/anthropic'
+import { GeminiAdapter } from './adapters/gemini'
+import { OpenAIToolAdapter } from './adapters/openai-tool'
+import type { ProviderAdapter } from './adapters/types'
+import { runToolLoop } from './tool-loop'
 
 export interface SendMessageOptions {
-  wikiMode?: boolean
   toolCallbacks?: ToolCallCallbacks
   buddyMessageId?: string
 }
 
-export class WikiModeRequiresClaudeError extends Error {
-  constructor() {
-    super(
-      'Wiki Mode requires a Claude model. Switch to a Claude model in NodeBuddy settings.',
-    )
-    this.name = 'WikiModeRequiresClaudeError'
+/** Mirrors resolveTarget() in api.ts: same prefixes → same provider family. */
+const pickAdapter = (messages: ChatMessage[]): ProviderAdapter => {
+  const model = getModelNameFromSettings()
+  if (model.startsWith('claude')) {
+    const useOAuth = isAnthropicOAuthToken(getAnthropicApiKeyFromSettings())
+    return new AnthropicAdapter(messages, useOAuth)
   }
+  if (
+    model.startsWith('gemma') ||
+    model.startsWith('qwen') ||
+    model.startsWith('deepseek')
+  ) {
+    return new OpenAIToolAdapter(messages)
+  }
+  return new GeminiAdapter(messages)
 }
 
 export const sendMessageToLLM = async (
@@ -26,30 +38,9 @@ export const sendMessageToLLM = async (
   const validMessages = dropWhile(messages, (m) => m.role !== 'user')
   if (validMessages.length === 0) return ''
 
-  const model = getModelNameFromSettings()
-  const isClaude = model.startsWith('claude')
-
-  if (options.wikiMode && !isClaude) {
-    throw new WikiModeRequiresClaudeError()
-  }
-
-  if (model.startsWith('gemma')) {
-    return await handleOpenAICompatible(validMessages, {
-      label: 'Local Gemma',
-      connectionErrorMessage:
-        "Error: Could not connect to Ollama. Make sure it's running.",
-    })
-  } else if (model.startsWith('qwen')) {
-    return await handleOpenAICompatible(validMessages, { label: 'Qwen' })
-  } else if (model.startsWith('deepseek')) {
-    return await handleOpenAICompatible(validMessages, { label: 'DeepSeek' })
-  } else if (isClaude) {
-    return await handleClaude(validMessages, {
-      wikiMode: options.wikiMode,
-      toolCallbacks: options.toolCallbacks,
-      buddyMessageId: options.buddyMessageId,
-    })
-  } else {
-    return await handleGemini(validMessages)
-  }
+  const adapter = pickAdapter(validMessages)
+  return await runToolLoop(adapter, {
+    toolCallbacks: options.toolCallbacks,
+    buddyMessageId: options.buddyMessageId,
+  })
 }

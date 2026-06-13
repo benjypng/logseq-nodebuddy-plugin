@@ -1,5 +1,4 @@
 export * from './MessageBubble'
-export * from './NewChat'
 export * from './NodeBuddyFab'
 export * from './PlanCard'
 export * from './TitleHeader'

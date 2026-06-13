@@ -780,7 +780,7 @@ If a query returns unexpectedly empty, suspect a file-graph attribute snuck in. 
     true,
   ),
 
-  /* ---------- Plan-gating tools (special-cased in handle-claude.ts) ---------- */
+  /* ---------- Plan-gating tools (special-cased in tool-loop.ts) ---------- */
   declare_plan: tool(
     'declare_plan',
     'REQUIRED before any write tool call. Declare the full ordered plan of actions you intend to take on the graph. The user sees a single Approve/Reject card for the whole plan; on Approve, all subsequent writes in this turn proceed without further prompts. `steps` is an array of short human-readable strings describing each step (e.g. "Create #Source page \'Karpathy: LLM Wiki\'", "Append body blocks", "Seed #Concept page \'LLM Wiki Pattern\'", "Add Index entry"). After approval, call mark_plan_step(index, status) after each step.',
@@ -798,7 +798,7 @@ If a query returns unexpectedly empty, suspect a file-graph attribute snuck in. 
     },
     async () => {
       throw new Error(
-        'declare_plan must be intercepted by handle-claude.ts; raw run() should never be called',
+        'declare_plan must be intercepted by tool-loop.ts; raw run() should never be called',
       )
     },
   ),
@@ -817,7 +817,7 @@ If a query returns unexpectedly empty, suspect a file-graph attribute snuck in. 
     },
     async () => {
       throw new Error(
-        'mark_plan_step must be intercepted by handle-claude.ts; raw run() should never be called',
+        'mark_plan_step must be intercepted by tool-loop.ts; raw run() should never be called',
       )
     },
   ),

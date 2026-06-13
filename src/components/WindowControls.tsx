@@ -26,8 +26,8 @@ export const WindowControls = ({
         <button
           type="button"
           className="nb-window-controls__btn"
-          title="New chat"
-          aria-label="New chat"
+          title="New conversation"
+          aria-label="New conversation"
           onClick={onNewChat}
         >
           <IconPencilPlus size={15} />

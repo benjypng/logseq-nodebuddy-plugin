@@ -2,8 +2,8 @@ import { IconSend } from '@tabler/icons-react'
 import { useCallback, useEffect, useRef } from 'react'
 import { Controller, SubmitHandler, useFormContext } from 'react-hook-form'
 
-import { sendMessageToLLM, WikiModeRequiresClaudeError } from '../api'
-import { useAutoFocus, useLogseqPage } from '../hooks'
+import { sendMessageToLLM } from '../api'
+import { useAutoFocus } from '../hooks'
 import {
   ChatFormValues,
   ChatMessage,
@@ -11,7 +11,7 @@ import {
   ToolCallCallbacks,
   UserInputProps,
 } from '../types'
-import { getPromptContext, writeHistoryToGraph } from '../utils'
+import { getPromptContext } from '../utils'
 import {
   awaitDecision,
   buildCommandPrompt,
@@ -26,13 +26,11 @@ const AutosizeTextarea = ({
   onChange,
   error,
   onKeyDown,
-  wikiMode,
 }: {
   value: string
   onChange: (value: string) => void
   error?: string
   onKeyDown: (e: React.KeyboardEvent) => void
-  wikiMode: boolean
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -47,8 +45,8 @@ const AutosizeTextarea = ({
     resize()
   }, [value, resize])
 
-  const parsed = wikiMode ? parseSlashCommand(value) : null
-  const isInvalidSlash = wikiMode && !parsed && value.trim().startsWith('/')
+  const parsed = parseSlashCommand(value)
+  const isInvalidSlash = !parsed && value.trim().startsWith('/')
 
   const ingestTarget =
     parsed?.cmd === 'ingest' ? parseIngestTarget(parsed.args) : null
@@ -83,11 +81,7 @@ const AutosizeTextarea = ({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={onKeyDown}
-        placeholder={
-          wikiMode
-            ? 'Ask NodeBuddy… or /session-start /ingest /query /lint /lint-seedlings'
-            : 'Ask NodeBuddy...'
-        }
+        placeholder="Ask NodeBuddy… or /session-start /ingest /query /lint /lint-seedlings"
         rows={1}
         className={`nb-textarea ${error ? 'nb-textarea--error' : ''} ${modifier}`}
       />
@@ -96,16 +90,10 @@ const AutosizeTextarea = ({
 }
 
 export const UserInput = ({ messages, setMessages }: UserInputProps) => {
-  const { page, wikiMode } = useLogseqPage()
-  // ChatBox only mounts UserInput when there is a page OR wikiMode is on,
-  // so at least one of these is true here.
-
   const { control, handleSubmit, reset, setFocus } =
     useFormContext<ChatFormValues>()
 
   useAutoFocus(setFocus, 'prompt')
-
-  const persistToGraph = !wikiMode && !!page
 
   const onSubmit: SubmitHandler<ChatFormValues> = async (data) => {
     const rawInput = data.prompt
@@ -116,14 +104,7 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
     let promptContext = await getPromptContext(rawInput)
 
     const parsed = parseSlashCommand(rawInput)
-    if (parsed && !wikiMode) {
-      logseq.UI.showMsg(
-        'Slash commands require Wiki Mode. Start a Wiki Mode session from the home screen.',
-        'warning',
-      )
-      return
-    }
-    if (parsed && wikiMode) {
+    if (parsed) {
       promptContext = []
       try {
         if (parsed.cmd === 'ingest') {
@@ -156,13 +137,6 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
       role: 'user',
       content: promptForLLM,
       context: promptContext,
-    }
-    if (persistToGraph && page) {
-      await writeHistoryToGraph.writeMessage(page.name, {
-        id: Date.now().toString(),
-        role: 'user',
-        content: displayContent,
-      })
     }
 
     const buddyId = (Date.now() + 1).toString()
@@ -231,17 +205,9 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
     try {
       const history = [...messages, userMsg]
       const responseContent = await sendMessageToLLM(history, {
-        wikiMode,
         toolCallbacks,
         buddyMessageId: buddyId,
       })
-      if (persistToGraph && page) {
-        await writeHistoryToGraph.writeMessage(page.name, {
-          id: Date.now().toString(),
-          role: 'buddy',
-          content: responseContent,
-        })
-      }
 
       setMessages((prev) =>
         prev.map((msg) =>
@@ -249,16 +215,8 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
         ),
       )
     } catch (e) {
-      if (e instanceof WikiModeRequiresClaudeError) {
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === buddyId ? { ...msg, content: e.message } : msg,
-          ),
-        )
-      } else {
-        logseq.UI.showMsg(`Failed to reach model: ${String(e)}`, 'error')
-        setMessages((prev) => prev.filter((msg) => msg.id !== buddyId))
-      }
+      logseq.UI.showMsg(`Failed to reach model: ${String(e)}`, 'error')
+      setMessages((prev) => prev.filter((msg) => msg.id !== buddyId))
     }
   }
 
@@ -274,7 +232,6 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
               value={field.value}
               onChange={field.onChange}
               error={error?.message}
-              wikiMode={wikiMode}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault()
