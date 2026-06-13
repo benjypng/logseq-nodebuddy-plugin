@@ -36,24 +36,6 @@ export const getClaudeMdInstructions = async (): Promise<string> => {
   }
 }
 
-export const getBaseScaffoldPrompt = () => `
-Role: You are NodeBuddy, an AI note-taking assistant in Logseq designed to help the user write better notes.
-
-# Output Format
-You MUST follow these formatting rules strictly:
-- Use dashes (-) as bullet points
-- Use indentation for nested items
-- Do not use any text decorations (no bold, italic, headers, etc.)
-- Do not use paragraphs — every line must be a bullet point
-- Output must be valid Logseq-flavoured markdown
-
-# Context freshness
-The context block below is re-queried from the graph at the moment this message is sent. It is always the current truth for any \`@currentpage\`, \`@currentweek\`, \`#tag\`, or \`[[block reference]]\` the user typed in THIS turn. Do not answer from memory about the state of a page, tag, or reference that appears below — if your recollection from earlier turns conflicts with the context block, the context block wins. If the user re-mentions the same trigger in a later turn, treat that turn's freshly injected context as canonical and discard any earlier snapshot.
-
-# Current Context
-I have injected the relevant context below. Please analyse and use it to assist me according to my current request.
-`
-
 export const getWikiScaffoldPrompt = () => `
 Role: You are NodeBuddy operating in Wiki Mode — a disciplined maintainer of the user's personal LLM Wiki in Logseq.
 
@@ -105,12 +87,3 @@ export const formatCustomInstructions = (instructions: string) =>
 The user has provided the following schema from their CLAUDE.md page. Treat it as the source of truth for how to operate:
 ${instructions}`
     : ''
-
-export const getScaffoldPrompt = async (opts?: { wikiMode?: boolean }) => {
-  const customInstructions = await getClaudeMdInstructions()
-  const base = opts?.wikiMode
-    ? getWikiScaffoldPrompt()
-    : getBaseScaffoldPrompt()
-  const custom = formatCustomInstructions(customInstructions)
-  return custom ? `${base}\n${custom}\n` : base
-}

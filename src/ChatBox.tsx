@@ -1,14 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { TitleHeader, UserInput } from './components'
 import { Avatar } from './components/Avatar'
 import { MessageBubble } from './components/MessageBubble'
-import { useLogseqPage } from './hooks'
-import { getPageBlocks } from './mcp'
+import { getClaudeMdInstructions } from './constants'
 import { ChatFormValues, ChatMessage, ToolDecision } from './types'
-import { isNodeBuddyPage } from './utils'
-import { clearPendingDecisions, resolveDecision } from './wiki'
+import { resolveDecision } from './wiki'
 
 const WIKI_GREETING = `**Wiki Mode is on.** This conversation is ephemeral — it disappears when you close the sidebar.
 
@@ -28,51 +26,48 @@ Slash commands:
 
 Or just ask me anything — I'll use the read tools to look it up.`
 
-export const ChatBox = () => {
-  const { page, wikiMode } = useLogseqPage()
+/**
+ * The conversation that seeds a fresh session. Lives here but is owned by
+ * NodeBuddyContainer's state so the session survives minimise/restore (ChatBox
+ * unmounts while minimised) and is only cleared on reset or when Logseq closes.
+ */
+export const createGreetingMessages = (): ChatMessage[] => [
+  {
+    id: 'wiki-greeting',
+    role: 'buddy',
+    content: WIKI_GREETING,
+  },
+]
+
+export const ChatBox = ({
+  messages,
+  setMessages,
+}: {
+  messages: ChatMessage[]
+  setMessages: Dispatch<SetStateAction<ChatMessage[]>>
+}) => {
   const viewport = useRef<HTMLDivElement>(null)
-  const [messages, setMessages] = useState<ChatMessage[]>([])
+  // null = still checking, false = no CLAUDE.md (gate), true = ready.
+  const [claudeMdReady, setClaudeMdReady] = useState<boolean | null>(null)
 
   const formMethods = useForm<ChatFormValues>({
     defaultValues: { prompt: '' },
   })
+
   useEffect(() => {
-    if (wikiMode) {
-      setMessages([
-        {
-          id: 'wiki-greeting',
-          role: 'buddy',
-          content: WIKI_GREETING,
-        },
-      ])
-      clearPendingDecisions()
-      return
+    let cancelled = false
+    const check = async () => {
+      const text = await getClaudeMdInstructions()
+      if (!cancelled) setClaudeMdReady(text.length > 0)
     }
-    const getExistingMessages = async () => {
-      if (!page) return
-      const nodeBuddyPage = await isNodeBuddyPage(page.id)
-      if (nodeBuddyPage) {
-        const currPbt = await getPageBlocks(page.name)
-        if (currPbt.length === 0) {
-          setMessages([
-            {
-              id: 'init-1',
-              role: 'buddy',
-              content:
-                'I am NodeBuddy, your Logseq AI assistant. Use #tag, [[block references]] or @currentpage to add blocks to your context. Feel free to ask me for any help!',
-            },
-          ])
-        } else {
-          setMessages(
-            currPbt
-              .filter((block) => block.fullTitle !== '')
-              .map((block) => JSON.parse(block.fullTitle)),
-          )
-        }
-      }
+    check()
+    const onVisible = () => check()
+    logseq.on('ui:visible:changed', onVisible)
+    return () => {
+      cancelled = true
+      logseq.off('ui:visible:changed', onVisible)
     }
-    getExistingMessages()
-  }, [page, wikiMode])
+  }, [])
 
   useEffect(() => {
     viewport.current?.scrollTo({
@@ -104,7 +99,14 @@ export const ChatBox = () => {
         </div>
       </div>
 
-      <UserInput messages={messages} setMessages={setMessages} />
+      {claudeMdReady === false ? (
+        <div className="nb-claude-md-gate">
+          Add a <code>CLAUDE.md</code> page with at least one non-empty block to
+          this graph to use NodeBuddy.
+        </div>
+      ) : claudeMdReady === true ? (
+        <UserInput messages={messages} setMessages={setMessages} />
+      ) : null}
     </FormProvider>
   )
 }

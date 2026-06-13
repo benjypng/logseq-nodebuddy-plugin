@@ -57,14 +57,6 @@ export const settings: SettingSchemaDesc[] = [
     description: 'Endpoint of local models such as Qwen or Gemma.',
   },
   {
-    key: 'nodeBuddyTag',
-    type: 'string',
-    default: 'NodeBuddy',
-    title: 'NodeBuddy Page Tag',
-    description:
-      'NodeBuddy chat histories are stored on pages in the graph. Indicate the tag used for these pages.',
-  },
-  {
     key: 'popupWidth',
     type: 'number',
     default: 400,
