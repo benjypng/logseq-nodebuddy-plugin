@@ -299,14 +299,14 @@ body,
 
 .nb-header__title {
   font-weight: 700;
-  font-size: 15px;
+  font-size: 17px;
   color: var(--nb-text);
   letter-spacing: -0.01em;
 }
 
 .nb-header__model {
   display: inline-block;
-  font-size: 11px;
+  font-size: 13px;
   padding: 1px 6px;
   border-radius: var(--nb-radius-sm);
   background-color: var(--nb-bg-muted);
@@ -323,7 +323,7 @@ body,
   margin-top: 3px;
   padding: 2px 6px;
   max-width: 100%;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 500;
   border: none;
   border-radius: var(--nb-radius-sm);
@@ -361,7 +361,7 @@ body,
   align-items: center;
   gap: 4px;
   padding: 5px 8px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   border-radius: var(--nb-radius-md);
   border: none;
@@ -511,7 +511,7 @@ body,
 }
 
 .nb-bubble__context {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--nb-text-muted);
   text-align: right;
   padding-right: 2px;
@@ -522,7 +522,7 @@ body,
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--nb-text-muted);
 }
 
@@ -563,7 +563,7 @@ body,
 /* ── Markdown inside bubbles ──────────────────────────────── */
 .nb-markdown p,
 .nb-markdown div {
-  font-size: 14px;
+  font-size: 16px;
   margin-top: 0;
   margin-bottom: 6px;
   line-height: 1.55;
@@ -578,7 +578,7 @@ body,
 .nb-markdown code {
   padding: 2px 6px;
   border-radius: var(--nb-radius-sm);
-  font-size: 13px;
+  font-size: 15px;
   background-color: var(--nb-code-bg);
   font-family: ui-monospace, monospace;
 }
@@ -590,7 +590,7 @@ body,
   overflow-x: auto;
   background-color: var(--nb-code-bg);
   font-family: ui-monospace, monospace;
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.5;
   border: 1px solid var(--nb-border);
 }
@@ -605,7 +605,7 @@ body,
 .nb-markdown a {
   color: var(--nb-accent);
   text-decoration: none;
-  font-size: 14px;
+  font-size: 16px;
   transition: color var(--nb-transition);
 }
 
@@ -623,17 +623,17 @@ body,
 }
 
 .nb-markdown h1 {
-  font-size: 1.1rem;
+  font-size: 1.225rem;
   font-weight: 600;
 }
 
 .nb-markdown h2 {
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 600;
 }
 
 .nb-markdown h3 {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
 }
 
@@ -642,7 +642,7 @@ body,
   padding-left: 18px;
   margin-top: 6px;
   margin-bottom: 6px;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .nb-markdown li {
@@ -659,7 +659,7 @@ body,
   padding: 4px 12px;
   border-left: 3px solid var(--nb-accent);
   color: var(--nb-text-secondary);
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .nb-markdown hr {
@@ -671,7 +671,7 @@ body,
 .nb-markdown table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 15px;
   margin-bottom: 8px;
 }
 
@@ -703,7 +703,7 @@ body,
   border-top: 1px solid var(--nb-border);
   background-color: var(--nb-bg);
   color: var(--nb-text-secondary);
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.5;
   text-align: center;
 }
@@ -724,7 +724,7 @@ body,
 
 .nb-input-error {
   color: var(--nb-error);
-  font-size: 11px;
+  font-size: 13px;
   margin-bottom: 4px;
   font-weight: 500;
 }
@@ -738,7 +738,7 @@ body,
   border: 1px solid var(--nb-border-input);
   background-color: var(--nb-bg-input);
   color: var(--nb-text);
-  font-size: 14px;
+  font-size: 16px;
   font-family: inherit;
   line-height: 1.55;
   outline: none;
@@ -844,7 +844,7 @@ body,
   border: none;
   cursor: pointer;
   color: var(--nb-text-secondary, #888);
-  font-size: 12px;
+  font-size: 14px;
   text-align: left;
 }
 .nb-tool-group__label {
@@ -877,7 +877,7 @@ body,
   border: 1px solid var(--nb-border, rgba(120, 120, 120, 0.25));
   border-radius: 6px;
   background: var(--nb-bg-subtle, rgba(120, 120, 120, 0.06));
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .nb-tool-card--pending {
@@ -914,11 +914,11 @@ body,
 .nb-tool-card__name {
   flex: 1;
   font-family: ui-monospace, monospace;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .nb-tool-card__status {
-  font-size: 10px;
+  font-size: 12px;
   text-transform: uppercase;
   color: var(--nb-text-secondary, #888);
 }
@@ -928,7 +928,7 @@ body,
   padding: 6px 8px;
   border-top: 1px solid var(--nb-border, rgba(120, 120, 120, 0.2));
   font-family: ui-monospace, monospace;
-  font-size: 11px;
+  font-size: 13px;
   white-space: pre-wrap;
   word-break: break-word;
   max-height: 220px;
@@ -949,7 +949,7 @@ body,
   padding: 3px 8px;
   border: 1px solid transparent;
   border-radius: 4px;
-  font-size: 11px;
+  font-size: 13px;
   cursor: pointer;
 }
 
@@ -975,7 +975,7 @@ body,
   left: 8px;
   z-index: 1;
   font-family: ui-monospace, monospace;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1;
   padding: 3px 6px;
   border-radius: 4px;
@@ -1008,7 +1008,7 @@ body,
   border-left-width: 3px;
   border-radius: 6px;
   background: var(--nb-bg-subtle, rgba(120, 120, 120, 0.05));
-  font-size: 12px;
+  font-size: 14px;
   overflow: hidden;
 }
 
@@ -1032,11 +1032,11 @@ body,
 
 .nb-plan-card__title {
   font-weight: 600;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .nb-plan-card__status {
-  font-size: 10px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--nb-text-secondary, #888);
@@ -1099,7 +1099,7 @@ body,
   padding: 4px 10px;
   border: 1px solid transparent;
   border-radius: 4px;
-  font-size: 11px;
+  font-size: 13px;
   cursor: pointer;
 }
 
