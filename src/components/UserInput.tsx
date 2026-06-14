@@ -1,9 +1,10 @@
-import { IconSend } from '@tabler/icons-react'
-import { useCallback, useEffect, useRef } from 'react'
+import { IconLoader2, IconSend } from '@tabler/icons-react'
+import { useCallback, useEffect, useRef, useSyncExternalStore } from 'react'
 import { Controller, SubmitHandler, useFormContext } from 'react-hook-form'
 
 import { sendMessageToLLM } from '../api'
 import { useAutoFocus } from '../hooks'
+import { thinkingStore } from '../thinking-state'
 import {
   ChatFormValues,
   ChatMessage,
@@ -93,9 +94,16 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
   const { control, handleSubmit, reset, setFocus } =
     useFormContext<ChatFormValues>()
 
+  const isThinking = useSyncExternalStore(
+    thinkingStore.subscribe,
+    thinkingStore.isThinking,
+  )
+
   useAutoFocus(setFocus, 'prompt')
 
   const onSubmit: SubmitHandler<ChatFormValues> = async (data) => {
+    if (thinkingStore.isThinking()) return
+
     const rawInput = data.prompt
     if (!rawInput.trim()) return
 
@@ -202,6 +210,7 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
       awaitDecision,
     }
 
+    thinkingStore.begin()
     try {
       const history = [...messages, userMsg]
       const responseContent = await sendMessageToLLM(history, {
@@ -217,6 +226,8 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
     } catch (e) {
       logseq.UI.showMsg(`Failed to reach model: ${String(e)}`, 'error')
       setMessages((prev) => prev.filter((msg) => msg.id !== buddyId))
+    } finally {
+      thinkingStore.end()
     }
   }
 
@@ -241,8 +252,17 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
             />
           )}
         />
-        <button type="submit" aria-label="Send message" className="nb-send-btn">
-          <IconSend size={16} />
+        <button
+          type="submit"
+          aria-label="Send message"
+          disabled={isThinking}
+          className={`nb-send-btn ${isThinking ? 'nb-send-btn--thinking' : ''}`}
+        >
+          {isThinking ? (
+            <IconLoader2 size={16} className="nb-send-btn__spinner" />
+          ) : (
+            <IconSend size={16} />
+          )}
         </button>
       </div>
     </form>
