@@ -14,14 +14,15 @@ export interface PopupSize {
   height: number
 }
 
-// The plugin runs inside an iframe, so the screen size lives on `parent`;
-// `window.innerWidth` here would only be the popup's own width.
-const screenWidth = () => parent.innerWidth || 1280
-const screenHeight = () => parent.innerHeight || 800
-const clampWidth = (w: number) =>
-  Math.max(MIN_WIDTH, Math.min(w, screenWidth() - POPUP_MARGIN * 2))
+// `window.screen` reports the display size (no cross-frame access needed); it
+// only bounds the *stored* value so it never grows absurd during a drag. The
+// real visual clamp against the Logseq window happens in CSS via the
+// max-width/max-height calc(100vw/vh ...) rules below.
+const boundWidth = () => (window.screen?.availWidth || 1280) - POPUP_MARGIN * 2
+const boundHeight = () => (window.screen?.availHeight || 800) - POPUP_MARGIN * 2
+const clampWidth = (w: number) => Math.max(MIN_WIDTH, Math.min(w, boundWidth()))
 const clampHeight = (h: number) =>
-  Math.max(MIN_HEIGHT, Math.min(h, screenHeight() - POPUP_MARGIN * 2))
+  Math.max(MIN_HEIGHT, Math.min(h, boundHeight()))
 
 const readSize = (): PopupSize => ({
   width: clampWidth((logseq.settings?.popupWidth as number) || DEFAULT_WIDTH),
@@ -50,72 +51,78 @@ const notify = () => {
   for (const fn of listeners) fn()
 }
 
-const getWrapper = () =>
-  parent.document.getElementById('logseq-nodebuddy-plugin_lsp_main')
-
-const WRAPPER = '#logseq-nodebuddy-plugin_lsp_main'
-
 /**
- * Stylesheet (injected into the *parent* document via logseq.provideStyle)
- * that floats the plugin iframe wrapper bottom-right. Rules use !important and
- * class toggles to win against the inline styles Logseq applies to the wrapper;
- * dynamic popup size flows through the --nb-w / --nb-h custom properties, which
- * Logseq never touches.
+ * Stylesheet injected via logseq.provideStyle so the plugin iframe fills its
+ * wrapper and inherits the wrapper's rounded corners. This is the sanctioned
+ * SDK path (no parent.document access); the wrapper's own size and position are
+ * driven entirely through setMainUIInlineStyle in applyWindowFrame.
  */
-export const WINDOW_FRAME_STYLE = `
-  ${WRAPPER} {
-    position: fixed !important;
-    top: auto !important;
-    left: auto !important;
-    right: ${POPUP_MARGIN}px !important;
-    bottom: ${POPUP_MARGIN}px !important;
-    z-index: 999999 !important;
-    overflow: hidden !important;
-    background: transparent !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28) !important;
-  }
-  ${WRAPPER}.nb-frame-min {
-    width: ${FAB_SIZE}px !important;
-    height: ${FAB_SIZE}px !important;
-    border-radius: 50% !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.24) !important;
-  }
-  ${WRAPPER}.nb-frame-expanded {
-    width: var(--nb-w, ${DEFAULT_WIDTH}px) !important;
-    height: var(--nb-h, ${DEFAULT_HEIGHT}px) !important;
-    border-radius: 12px !important;
-  }
-  ${WRAPPER}.nb-frame-max {
-    right: ${POPUP_MARGIN * 2}px !important;
-    bottom: ${POPUP_MARGIN * 2}px !important;
-    width: calc(100vw - ${POPUP_MARGIN * 4}px) !important;
-    height: calc(100vh - ${POPUP_MARGIN * 4}px) !important;
-    border-radius: 12px !important;
-  }
-  ${WRAPPER} iframe {
+export const windowFrameStyle = () => `
+  #${logseq.baseInfo.id}_lsp_main iframe {
     width: 100% !important;
     height: 100% !important;
     border: 0 !important;
+    border-radius: inherit;
   }`
 
-const FRAME_CLASS: Record<WindowState, string> = {
-  minimised: 'nb-frame-min',
-  expanded: 'nb-frame-expanded',
-  maximised: 'nb-frame-max',
+type FrameStyle = Record<string, string | number>
+
+const FRAME_BASE: FrameStyle = {
+  position: 'fixed',
+  top: 'auto',
+  left: 'auto',
+  zIndex: 999999,
+  overflow: 'hidden',
+  background: 'transparent',
+}
+
+const buildFrameStyle = (): FrameStyle => {
+  if (state === 'minimised') {
+    return {
+      ...FRAME_BASE,
+      right: `${POPUP_MARGIN}px`,
+      bottom: `${POPUP_MARGIN}px`,
+      width: `${FAB_SIZE}px`,
+      height: `${FAB_SIZE}px`,
+      maxWidth: 'none',
+      maxHeight: 'none',
+      borderRadius: '50%',
+      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.24)',
+    }
+  }
+  if (state === 'maximised') {
+    return {
+      ...FRAME_BASE,
+      right: `${POPUP_MARGIN * 2}px`,
+      bottom: `${POPUP_MARGIN * 2}px`,
+      width: `calc(100vw - ${POPUP_MARGIN * 4}px)`,
+      height: `calc(100vh - ${POPUP_MARGIN * 4}px)`,
+      maxWidth: 'none',
+      maxHeight: 'none',
+      borderRadius: '12px',
+      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.28)',
+    }
+  }
+  return {
+    ...FRAME_BASE,
+    right: `${POPUP_MARGIN}px`,
+    bottom: `${POPUP_MARGIN}px`,
+    width: `${size.width}px`,
+    height: `${size.height}px`,
+    maxWidth: `calc(100vw - ${POPUP_MARGIN * 2}px)`,
+    maxHeight: `calc(100vh - ${POPUP_MARGIN * 2}px)`,
+    borderRadius: '12px',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.28)',
+  }
 }
 
 /**
- * Switches the wrapper's frame class and feeds the current popup size through
- * CSS custom properties. The wrapper lives in the parent document, so this is
- * the one place that reaches across.
+ * Pushes the current frame size and position onto the plugin's main UI wrapper
+ * through the SDK. setMainUIInlineStyle writes the wrapper's inline style for
+ * us, so the plugin never has to reach into the parent document.
  */
 export const applyWindowFrame = () => {
-  const wrapper = getWrapper()
-  if (!wrapper) return
-  wrapper.classList.remove(...Object.values(FRAME_CLASS))
-  wrapper.classList.add(FRAME_CLASS[state])
-  wrapper.style.setProperty('--nb-w', `${size.width}px`)
-  wrapper.style.setProperty('--nb-h', `${size.height}px`)
+  logseq.setMainUIInlineStyle(buildFrameStyle())
 }
 
 const persist = () => {

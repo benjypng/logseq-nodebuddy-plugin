@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from 'react'
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react'
 
 import { ChatBox, createGreetingMessages } from './ChatBox'
 import { NodeBuddyFab, WindowControls } from './components'
@@ -42,12 +36,6 @@ export const NodeBuddyContainer = () => {
   }, [])
 
   const [isResizing, setIsResizing] = useState(false)
-  const dragRef = useRef({
-    startScreenX: 0,
-    startScreenY: 0,
-    startWidth: 0,
-    startHeight: 0,
-  })
 
   useEffect(() => {
     const cleanup = logseq.App.onThemeModeChanged(({ mode }) => {
@@ -80,30 +68,20 @@ export const NodeBuddyContainer = () => {
   // and the top-left corner changes both. Pulling away from the anchor (up /
   // left) grows the popup.
   const startResize = useCallback(
-    (axis: 'x' | 'y' | 'xy') => (e: React.MouseEvent) => {
+    (axis: 'x' | 'y' | 'xy') => (e: React.PointerEvent<HTMLDivElement>) => {
       e.preventDefault()
-      const { width, height } = windowStore.getSize()
-      dragRef.current = {
-        startScreenX: e.screenX,
-        startScreenY: e.screenY,
-        startWidth: width,
-        startHeight: height,
-      }
+      const { width: startWidth, height: startHeight } = windowStore.getSize()
+      const startScreenX = e.screenX
+      const startScreenY = e.screenY
       setIsResizing(true)
 
-      const wrapper = parent.document.getElementById(
-        'logseq-nodebuddy-plugin_lsp_main',
-      )
-      // Disable pointer events on the iframe so the parent document receives
-      // all mouse events during the drag.
-      const iframe = wrapper?.querySelector(
-        'iframe',
-      ) as HTMLIFrameElement | null
-      if (iframe) iframe.style.pointerEvents = 'none'
+      // Capturing the pointer keeps move/up events flowing to this handle even
+      // once the cursor leaves the iframe and travels over the Logseq app, so
+      // we never have to listen on the parent document.
+      const handle = e.currentTarget
+      handle.setPointerCapture(e.pointerId)
 
-      const onMouseMove = (ev: MouseEvent) => {
-        const { startScreenX, startScreenY, startWidth, startHeight } =
-          dragRef.current
+      const onMove = (ev: PointerEvent) => {
         windowStore.setSize({
           width:
             axis === 'y'
@@ -116,24 +94,17 @@ export const NodeBuddyContainer = () => {
         })
       }
 
-      const cleanup = () => {
-        parent.document.removeEventListener('mousemove', onMouseMove)
-        parent.document.removeEventListener('mouseup', onMouseUp)
-        document.removeEventListener('mousemove', onMouseMove)
-        document.removeEventListener('mouseup', onMouseUp)
-        if (iframe) iframe.style.pointerEvents = ''
-      }
-
-      const onMouseUp = () => {
-        cleanup()
+      const onUp = () => {
+        handle.removeEventListener('pointermove', onMove)
+        handle.removeEventListener('pointerup', onUp)
+        handle.removeEventListener('pointercancel', onUp)
         setIsResizing(false)
         windowStore.commitSize()
       }
 
-      parent.document.addEventListener('mousemove', onMouseMove)
-      parent.document.addEventListener('mouseup', onMouseUp)
-      document.addEventListener('mousemove', onMouseMove)
-      document.addEventListener('mouseup', onMouseUp)
+      handle.addEventListener('pointermove', onMove)
+      handle.addEventListener('pointerup', onUp)
+      handle.addEventListener('pointercancel', onUp)
     },
     [],
   )
@@ -158,11 +129,11 @@ export const NodeBuddyContainer = () => {
           <>
             <div
               className={`nb-resize nb-resize--left ${isResizing ? 'nb-resize--active' : ''}`}
-              onMouseDown={startResize('x')}
+              onPointerDown={startResize('x')}
             />
             <div
               className={`nb-resize nb-resize--corner ${isResizing ? 'nb-resize--active' : ''}`}
-              onMouseDown={startResize('xy')}
+              onPointerDown={startResize('xy')}
               title="Drag to resize"
             />
           </>

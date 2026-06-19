@@ -5,16 +5,12 @@ import { createRoot } from 'react-dom/client'
 
 import { NodeBuddyContainer } from './NodeBuddyContainer'
 import { settings } from './settings'
-import {
-  applyWindowFrame,
-  WINDOW_FRAME_STYLE,
-  windowStore,
-} from './window-state'
+import { applyWindowFrame, windowFrameStyle, windowStore } from './window-state'
 
 const main = async () => {
   logseq.UI.showMsg('logseq-nodebuddy-plugin loaded')
   logseq.provideStyle(`
-    ${WINDOW_FRAME_STYLE}
+    ${windowFrameStyle()}
 
     div.preboot-loading {
       display: none !important;
