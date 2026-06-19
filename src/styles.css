@@ -1,4 +1,11 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(https://cdn.jsdelivr.net/fontsource/fonts/inter:vf@latest/latin-wght-normal.woff2)
+    format("woff2-variations");
+}
 
 /* ── Root layout ──────────────────────────────────────────── */
 html,
@@ -11,44 +18,49 @@ body,
 
 /* ── Theme tokens ─────────────────────────────────────────── */
 :root {
-  /* Light theme (default) */
+  /* Light theme (default) — warm paper */
   --nb-bg: #ffffff;
-  --nb-bg-subtle: #f8f9fa;
-  --nb-bg-muted: #f1f3f5;
+  --nb-bg-subtle: #f6f4ef;
+  --nb-bg-muted: #f1efea;
   --nb-bg-input: #ffffff;
   --nb-bg-elevated: #ffffff;
 
-  --nb-text: #1a1b1e;
-  --nb-text-secondary: #495057;
-  --nb-text-muted: #868e96;
+  --nb-text: #211f1b;
+  --nb-text-secondary: #55524e;
+  --nb-text-muted: #8b8780;
 
-  --nb-border: #dee2e6;
-  --nb-border-input: #ced4da;
+  --nb-border: #e6e2da;
+  --nb-border-input: #ddd8cd;
 
-  --nb-bubble-user: #dbe4ff;
-  --nb-bubble-buddy: #f8f9fa;
-  --nb-bubble-user-border: #c5d2f0;
-  --nb-bubble-buddy-border: #e9ecef;
+  --nb-bubble-user: #e9f0ff;
+  --nb-bubble-buddy: #f6f4ef;
+  --nb-bubble-user-border: #d4e0fb;
+  --nb-bubble-buddy-border: #e6e2da;
 
-  --nb-avatar-buddy-bg: #d0ebff;
-  --nb-avatar-buddy-fg: #1864ab;
-  --nb-avatar-user-bg: #dee2e6;
-  --nb-avatar-user-fg: #495057;
+  --nb-avatar-buddy-bg: #e9f0ff;
+  --nb-avatar-buddy-fg: #2f6df6;
+  --nb-avatar-user-bg: #ece7dd;
+  --nb-avatar-user-fg: #55524e;
 
-  --nb-accent: #228be6;
-  --nb-accent-hover: #1c7ed6;
-  --nb-accent-subtle: #e7f5ff;
-  --nb-error: #fa5252;
-  --nb-success: #12b886;
+  --nb-accent: #2f6df6;
+  --nb-accent-hover: #1f5ce0;
+  --nb-accent-subtle: #e9f0ff;
+  --nb-error: #d83b3b;
+  --nb-success: #1f9d6b;
 
-  --nb-hover-bg: #f1f3f5;
-  --nb-code-bg: #f1f3f5;
+  --nb-status-pending: #d2862a;
+  --nb-status-running: #2f6df6;
+  --nb-status-completed: #1f9d6b;
+  --nb-status-errored: #d83b3b;
 
-  --nb-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --nb-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06);
-  --nb-shadow-bubble: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --nb-hover-bg: #efede7;
+  --nb-code-bg: #f1efea;
 
-  --nb-radius-sm: 4px;
+  --nb-shadow-sm: 0 1px 2px rgba(33, 31, 27, 0.04);
+  --nb-shadow-md: 0 2px 8px rgba(33, 31, 27, 0.08);
+  --nb-shadow-bubble: 0 1px 3px rgba(33, 31, 27, 0.05);
+
+  --nb-radius-sm: 6px;
   --nb-radius-md: 8px;
   --nb-radius-lg: 12px;
   --nb-radius-full: 50%;
@@ -57,41 +69,47 @@ body,
 }
 
 [data-theme="dark"] {
-  --nb-bg: #1a1b1e;
-  --nb-bg-subtle: #25262b;
-  --nb-bg-muted: #2c2e33;
-  --nb-bg-input: #25262b;
-  --nb-bg-elevated: #1e1f23;
+  /* Dark theme — charcoal */
+  --nb-bg: #202327;
+  --nb-bg-subtle: #1a1c1f;
+  --nb-bg-muted: #25282c;
+  --nb-bg-input: #25282c;
+  --nb-bg-elevated: #202327;
 
-  --nb-text: #c9cdd1;
-  --nb-text-secondary: #a6a7ab;
-  --nb-text-muted: #7c7d82;
+  --nb-text: #e7e4de;
+  --nb-text-secondary: #cac8c4;
+  --nb-text-muted: #908c84;
 
-  --nb-border: #373a40;
-  --nb-border-input: #373a40;
+  --nb-border: #2c2f34;
+  --nb-border-input: #363a40;
 
-  --nb-bubble-user: #1864ab;
-  --nb-bubble-buddy: #2c2e33;
-  --nb-bubble-user-border: #1971c2;
-  --nb-bubble-buddy-border: #373a40;
+  --nb-bubble-user: #1b2740;
+  --nb-bubble-buddy: #25282c;
+  --nb-bubble-user-border: #2a3a5c;
+  --nb-bubble-buddy-border: #2c2f34;
 
-  --nb-avatar-buddy-bg: #1c7ed6;
-  --nb-avatar-buddy-fg: #ffffff;
-  --nb-avatar-user-bg: #495057;
-  --nb-avatar-user-fg: #ffffff;
+  --nb-avatar-buddy-bg: #1b2740;
+  --nb-avatar-buddy-fg: #6aa0ff;
+  --nb-avatar-user-bg: #2b2e33;
+  --nb-avatar-user-fg: #cac8c4;
 
-  --nb-accent: #339af0;
-  --nb-accent-hover: #228be6;
-  --nb-accent-subtle: #1b2838;
+  --nb-accent: #6aa0ff;
+  --nb-accent-hover: #87b4ff;
+  --nb-accent-subtle: #1b2740;
   --nb-error: #ff6b6b;
-  --nb-success: #20c997;
+  --nb-success: #4cc78f;
 
-  --nb-hover-bg: #2c2e33;
-  --nb-code-bg: #25262b;
+  --nb-status-pending: #e6a84c;
+  --nb-status-running: #6aa0ff;
+  --nb-status-completed: #4cc78f;
+  --nb-status-errored: #ff6b6b;
 
-  --nb-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --nb-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --nb-shadow-bubble: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --nb-hover-bg: #272a2e;
+  --nb-code-bg: #25282c;
+
+  --nb-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --nb-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --nb-shadow-bubble: 0 1px 3px rgba(0, 0, 0, 0.25);
 }
 
 /* ── Base / Reset ─────────────────────────────────────────── */
@@ -274,8 +292,8 @@ body,
   background-color: var(--nb-bg);
   color: var(--nb-text);
   font-family:
-    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif;
+    "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
+    system-ui, Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -816,9 +834,9 @@ body,
 
 /* ---------- Wiki Mode / Tool calls ---------- */
 .nb-header__btn--active {
-  background-color: var(--nb-accent, #4c8bf5);
+  background-color: var(--nb-accent);
   color: white;
-  border: 1px solid var(--nb-accent, #4c8bf5);
+  border: 1px solid var(--nb-accent);
 }
 
 .nb-tool-group {
@@ -828,13 +846,13 @@ body,
   background: var(--nb-bg-subtle, rgba(120, 120, 120, 0.06));
 }
 .nb-tool-group--running {
-  border-color: #4c8bf5;
+  border-color: var(--nb-status-running);
 }
 .nb-tool-group--completed {
-  border-color: #2e7d32;
+  border-color: var(--nb-status-completed);
 }
 .nb-tool-group--errored {
-  border-color: #c62828;
+  border-color: var(--nb-status-errored);
 }
 .nb-tool-group__header {
   display: flex;
@@ -883,17 +901,17 @@ body,
 }
 
 .nb-tool-card--pending {
-  border-color: #d4a017;
+  border-color: var(--nb-status-pending);
 }
 .nb-tool-card--running {
-  border-color: #4c8bf5;
+  border-color: var(--nb-status-running);
 }
 .nb-tool-card--completed {
-  border-color: #2e7d32;
+  border-color: var(--nb-status-completed);
 }
 .nb-tool-card--rejected,
 .nb-tool-card--errored {
-  border-color: #c62828;
+  border-color: var(--nb-status-errored);
 }
 
 .nb-tool-card__header {
@@ -956,14 +974,14 @@ body,
 }
 
 .nb-tool-card__btn--approve {
-  background: #2e7d32;
+  background: var(--nb-status-completed);
   color: white;
 }
 
 .nb-tool-card__btn--reject {
   background: transparent;
-  border-color: #c62828;
-  color: #c62828;
+  border-color: var(--nb-status-errored);
+  color: var(--nb-status-errored);
 }
 
 /* Slash-command affordance in the chat textarea */
@@ -981,25 +999,25 @@ body,
   line-height: 1;
   padding: 3px 6px;
   border-radius: 4px;
-  background: #4c8bf5;
+  background: var(--nb-status-running);
   color: white;
   pointer-events: none;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
 }
 
 .nb-command-chip--unknown {
-  background: #c62828;
+  background: var(--nb-status-errored);
 }
 
 .nb-textarea--command {
-  border-color: #4c8bf5 !important;
-  background: rgba(76, 139, 245, 0.06);
+  border-color: var(--nb-status-running) !important;
+  background: color-mix(in srgb, var(--nb-status-running) 8%, transparent);
   font-family: ui-monospace, monospace;
 }
 
 .nb-textarea--command-unknown {
-  border-color: #c62828 !important;
-  background: rgba(198, 40, 40, 0.05);
+  border-color: var(--nb-status-errored) !important;
+  background: color-mix(in srgb, var(--nb-status-errored) 8%, transparent);
   font-family: ui-monospace, monospace;
 }
 
@@ -1015,13 +1033,13 @@ body,
 }
 
 .nb-plan-card--awaiting-approval {
-  border-left-color: #d4a017;
+  border-left-color: var(--nb-status-pending);
 }
 .nb-plan-card--approved {
-  border-left-color: #2e7d32;
+  border-left-color: var(--nb-status-completed);
 }
 .nb-plan-card--rejected {
-  border-left-color: #c62828;
+  border-left-color: var(--nb-status-errored);
 }
 
 .nb-plan-card__header {
@@ -1066,16 +1084,16 @@ body,
 }
 
 .nb-plan-step--done .nb-plan-step__icon {
-  color: #2e7d32;
+  color: var(--nb-status-completed);
 }
 .nb-plan-step--running .nb-plan-step__icon {
-  color: #4c8bf5;
+  color: var(--nb-status-running);
 }
 .nb-plan-step--failed .nb-plan-step__icon {
-  color: #c62828;
+  color: var(--nb-status-errored);
 }
 .nb-plan-step--skipped .nb-plan-step__icon {
-  color: #d4a017;
+  color: var(--nb-status-pending);
 }
 
 .nb-plan-step__title {
@@ -1106,18 +1124,18 @@ body,
 }
 
 .nb-plan-card__btn--approve {
-  background: #2e7d32;
+  background: var(--nb-status-completed);
   color: white;
 }
 
 .nb-plan-card__btn--reject {
   background: transparent;
-  border-color: #c62828;
-  color: #c62828;
+  border-color: var(--nb-status-errored);
+  color: var(--nb-status-errored);
 }
 
 /* Tool card: drop the now-unused pending/approved/rejected variants */
 .nb-tool-card--blocked {
-  border-color: #c62828;
+  border-color: var(--nb-status-errored);
   opacity: 0.85;
 }
