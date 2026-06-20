@@ -156,7 +156,7 @@ export const UserInput = ({ messages, setMessages }: UserInputProps) => {
 
     const displayUserMsg: ChatMessage = { ...userMsg, content: displayContent }
     setMessages((prev) => [...prev, displayUserMsg, initialBuddyMsg])
-    reset()
+    reset({ prompt: '' })
 
     const toolCallbacks: ToolCallCallbacks = {
       onToolCallStart: (messageId, call) => {

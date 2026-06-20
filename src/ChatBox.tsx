@@ -42,17 +42,26 @@ export const createGreetingMessages = (): ChatMessage[] => [
 export const ChatBox = ({
   messages,
   setMessages,
+  draft,
+  setDraft,
 }: {
   messages: ChatMessage[]
   setMessages: Dispatch<SetStateAction<ChatMessage[]>>
+  draft: string
+  setDraft: Dispatch<SetStateAction<string>>
 }) => {
   const viewport = useRef<HTMLDivElement>(null)
   // null = still checking, false = no CLAUDE.md (gate), true = ready.
   const [claudeMdReady, setClaudeMdReady] = useState<boolean | null>(null)
 
   const formMethods = useForm<ChatFormValues>({
-    defaultValues: { prompt: '' },
+    defaultValues: { prompt: draft },
   })
+
+  useEffect(() => {
+    const sub = formMethods.watch((value) => setDraft(value.prompt ?? ''))
+    return () => sub.unsubscribe()
+  }, [formMethods, setDraft])
 
   useEffect(() => {
     let cancelled = false

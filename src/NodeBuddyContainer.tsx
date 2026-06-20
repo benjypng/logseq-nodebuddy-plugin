@@ -20,12 +20,17 @@ export const NodeBuddyContainer = () => {
   const [messages, setMessages] = useState<ChatMessage[]>(
     createGreetingMessages,
   )
+  // The draft input lives here too, for the same reason as messages: ChatBox
+  // (which owns the form) unmounts on minimise, so an unsent draft held inside
+  // it would be lost. Keeping it here lets it survive minimise/restore.
+  const [draft, setDraft] = useState('')
   // Bumping this remounts ChatBox for a clean slate (form input, scroll,
   // CLAUDE.md re-check) on reset.
   const [sessionId, setSessionId] = useState(0)
   const newConversation = () => {
     clearPendingDecisions()
     setMessages(createGreetingMessages())
+    setDraft('')
     setSessionId((n) => n + 1)
   }
 
@@ -147,6 +152,8 @@ export const NodeBuddyContainer = () => {
           key={sessionId}
           messages={messages}
           setMessages={setMessages}
+          draft={draft}
+          setDraft={setDraft}
         />
       </div>
     </ColorSchemeContext.Provider>
